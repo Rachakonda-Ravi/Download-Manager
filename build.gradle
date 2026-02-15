@@ -1,11 +1,10 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
 }
 
 group = 'manager'
-
-// Version comes from GitHub release tag if provided
 version = project.hasProperty("version") ? project.property("version") : "0.0.1"
 
 repositories {
@@ -18,12 +17,13 @@ java {
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+javafx {
+    version = "21"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 application {
@@ -36,15 +36,7 @@ jar {
 
     manifest {
         attributes(
-            'Main-Class': 'manager.Main'
+                'Main-Class': 'manager.Main'
         )
-    }
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    from {
-        configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
     }
 }
