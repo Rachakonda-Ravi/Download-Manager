@@ -41,7 +41,7 @@ jobs:
       # -------------------------------
       - name: 🔨 Build Fat JAR
         shell: bash
-        run: ./gradlew clean build -Pversion=$VERSION
+        run: ./gradlew clean shadowJar -Pversion=$VERSION
 
       # -------------------------------
       # Detect JAR name (only filename!)
