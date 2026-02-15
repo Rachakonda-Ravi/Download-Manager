@@ -49,8 +49,8 @@ jobs:
       - name: 📦 Detect JAR Name
         shell: bash
         run: |
-          JAR_FILE=$(basename $(ls build/libs/DownloadManager-*.jar))
-          echo "JAR_FILE=$JAR_FILE"
+          JAR_FILE=$(basename $(ls build/libs/DownloadManager-*.jar | head -n 1))
+          echo "Using JAR: $JAR_FILE"
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
 
       # -------------------------------
