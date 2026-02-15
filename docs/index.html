@@ -1,41 +1,530 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Download Manager</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #121212;
-            color: white;
-            padding: 40px;
-        }
-        h1 {
-            color: #2d89ef;
-        }
-        a {
-            color: #2d89ef;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DownloadManager • Modern Java Download Manager</title>
+  <meta name="description" content="A modern, high-performance Java-based download manager for Windows with pause/resume, multi-threading, progress tracking, and a download queue." />
+
+  <style>
+    :root{
+      --bg0:#070a12;
+      --bg1:#0b1220;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.12);
+      --text:#eaf0ff;
+      --muted: rgba(234,240,255,.72);
+      --muted2: rgba(234,240,255,.55);
+      --brand:#38bdf8;
+      --brand2:#a78bfa;
+      --ok:#22c55e;
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1100px 700px at 15% 10%, rgba(56,189,248,.18), transparent 55%),
+        radial-gradient(900px 600px at 85% 15%, rgba(167,139,250,.18), transparent 55%),
+        radial-gradient(900px 700px at 50% 95%, rgba(34,197,94,.12), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 28px 18px;
+      overflow-x:hidden;
+    }
+
+    a{ color: inherit; text-decoration:none; }
+    .wrap{
+      width: min(1100px, 100%);
+      display:grid;
+      gap: 18px;
+    }
+
+    header{
+      position: relative;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 28px;
+      overflow:hidden;
+    }
+
+    /* subtle grid */
+    header::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 56px 56px;
+      opacity:.08;
+      pointer-events:none;
+    }
+
+    nav{
+      position: relative;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 26px;
+      z-index:1;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      font-weight: 750;
+      letter-spacing:.2px;
+    }
+
+    .logo{
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(167,139,250,.95));
+      box-shadow: 0 12px 30px rgba(56,189,248,.18);
+      display:grid;
+      place-items:center;
+      border: 1px solid rgba(255,255,255,.18);
+      flex: 0 0 auto;
+    }
+    .logo svg{ width: 20px; height: 20px; opacity:.98; }
+
+    .navlinks{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .chip{
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 13px;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+    .chip:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.22);
+      color: var(--text);
+    }
+
+    .hero{
+      position: relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 22px;
+      align-items:stretch;
+    }
+
+    .headline h1{
+      font-size: clamp(28px, 4.2vw, 44px);
+      line-height: 1.08;
+      letter-spacing: -0.6px;
+      margin-bottom: 10px;
+    }
+    .headline p{
+      color: var(--muted);
+      font-size: 15.5px;
+      line-height: 1.6;
+      max-width: 62ch;
+      margin-bottom: 18px;
+    }
+
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .badge{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 999px;
+      background: var(--brand);
+      box-shadow: 0 0 0 3px rgba(56,189,248,.14);
+    }
+    .dot.ok{ background: var(--ok); box-shadow: 0 0 0 3px rgba(34,197,94,.14); }
+    .dot.purple{ background: var(--brand2); box-shadow: 0 0 0 3px rgba(167,139,250,.14); }
+
+    .ctaRow{
+      display:flex;
+      gap: 12px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      font-weight: 650;
+      font-size: 14px;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      cursor:pointer;
+    }
+    .btn:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.07);
+      border-color: rgba(255,255,255,.24);
+    }
+    .btn.primary{
+      border-color: rgba(56,189,248,.35);
+      background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(167,139,250,.85));
+      color: #07101e;
+      box-shadow: 0 14px 40px rgba(56,189,248,.16);
+    }
+    .btn.primary:hover{
+      box-shadow: 0 18px 55px rgba(56,189,248,.22);
+    }
+
+    .btn svg{ width: 16px; height: 16px; }
+
+    .panel{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 16px;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .panelTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .panelTitle h3{
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing:.25px;
+    }
+    .pill{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      color: rgba(234,240,255,.66);
+      background: rgba(255,255,255,.03);
+    }
+
+    .kvs{
+      display:grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .kv{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+    }
+    .kv b{
+      font-size: 13px;
+      letter-spacing:.2px;
+    }
+    .kv span{
+      color: var(--muted2);
+      font-size: 13px;
+      text-align:right;
+    }
+
+    main{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+
+    .card{
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.03));
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.30);
+    }
+
+    .card h2{
+      font-size: 15px;
+      margin-bottom: 10px;
+      letter-spacing: .2px;
+    }
+
+    ul{
+      list-style:none;
+      display:grid;
+      gap: 10px;
+    }
+
+    .li{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .check{
+      width: 18px; height: 18px;
+      border-radius: 6px;
+      background: rgba(34,197,94,.14);
+      border: 1px solid rgba(34,197,94,.28);
+      display:grid;
+      place-items:center;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+    .check svg{ width: 12px; height: 12px; }
+
+    .small{
+      color: var(--muted2);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    footer{
+      color: rgba(234,240,255,.62);
+      font-size: 13px;
+      text-align:center;
+      padding: 10px 0 2px;
+    }
+    footer a{
+      border-bottom: 1px dashed rgba(234,240,255,.35);
+    }
+    footer a:hover{
+      border-bottom-color: rgba(234,240,255,.6);
+    }
+
+    @media (max-width: 920px){
+      .hero{ grid-template-columns: 1fr; }
+      main{ grid-template-columns: 1fr; }
+      header{ padding: 22px; }
+    }
+  </style>
 </head>
+
 <body>
+  <div class="wrap">
 
-<h1>Download Manager</h1>
-<p>Modern Java-based Download Manager with:</p>
+    <header>
+      <nav>
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 3v10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M8 11l4 4 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 19h14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>DownloadManager</span>
+        </div>
 
-<ul>
-    <li>Pause & Resume</li>
-    <li>Download Queue</li>
-    <li>Checksum Validation</li>
-    <li>Download History</li>
-    <li>GitHub Self Update</li>
-</ul>
+        <div class="navlinks">
+          <a class="chip" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">GitHub</a>
+          <a class="chip" href="https://github.com/Rachakonda-Ravi/Download-Manager/releases" target="_blank" rel="noreferrer">Releases</a>
+        </div>
+      </nav>
 
-<p>
-Repository:
-<a href="https://github.com/Rachakonda-Ravi/Download-Manager">
-View on GitHub
-</a>
-</p>
+      <div class="hero">
+        <div class="headline">
+          <h1>Modern, fast Java download manager for Windows</h1>
+          <p>
+            DownloadManager is a high-performance Java-based download manager with multi-threaded downloads,
+            pause/resume support, real-time progress tracking, and download queue management.
+          </p>
 
+          <div class="badges">
+            <div class="badge"><span class="dot"></span> Multi-threaded downloading</div>
+            <div class="badge"><span class="dot ok"></span> Pause & Resume</div>
+            <div class="badge"><span class="dot purple"></span> Windows builds: EXE • MSI • Portable</div>
+          </div>
+
+          <div class="ctaRow">
+            <a class="btn primary" href="https://github.com/Rachakonda-Ravi/Download-Manager/releases" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 3v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Download latest
+            </a>
+
+            <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M9 19c-4 1.5-4-2.5-6-3m12 6v-3.87c0-1.08.37-2.13 1.03-2.97 2.17-2.73.74-6.71-2.66-7.34-1.04-.2-2.12-.2-3.16 0-3.4.63-4.83 4.61-2.66 7.34.66.84 1.03 1.89 1.03 2.97V22"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              View repository
+            </a>
+          </div>
+
+          <p class="small" style="margin-top:14px">
+            Requirements: Windows 10+ (64-bit). Development uses Java 21+ and Gradle (wrapper included).
+          </p>
+        </div>
+
+        <aside class="panel">
+          <div class="panelTitle">
+            <h3>Quick info</h3>
+            <span class="pill">Built with Java 21</span>
+          </div>
+
+          <div class="kvs">
+            <div class="kv">
+              <div>
+                <b>Download formats</b>
+              </div>
+              <span>EXE installer, MSI installer, Portable ZIP</span>
+            </div>
+
+            <div class="kv">
+              <div>
+                <b>Automation</b>
+              </div>
+              <span>Automated Windows release builds via GitHub Actions</span>
+            </div>
+
+            <div class="kv">
+              <div>
+                <b>Versioning</b>
+              </div>
+              <span>Version taken from the Git release tag</span>
+            </div>
+          </div>
+
+          <p class="small">
+            Tip: Use the Releases page for the latest stable builds and notes.
+          </p>
+        </aside>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Core features</h2>
+        <ul>
+          <li class="li">
+            <span class="check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            Fast multi-threaded downloading with real-time progress tracking.
+          </li>
+          <li class="li">
+            <span class="check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            Pause & Resume support and download queue management.
+          </li>
+          <li class="li">
+            <span class="check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            Modern Java UI designed for everyday use.
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Windows packaging</h2>
+        <ul>
+          <li class="li">
+            <span class="check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            EXE installer for standard Windows installs.
+          </li>
+          <li class="li">
+            <span class="check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            MSI installer for enterprise-friendly deployment.
+          </li>
+          <li class="li">
+            <span class="check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            Portable ZIP for “no install” usage.
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Project & support</h2>
+        <p class="small">
+          Built with Gradle and jpackage, with fully automated release builds via GitHub Actions.
+          If you like the project, consider starring the repo, sharing it, reporting bugs, or suggesting improvements.
+        </p>
+
+        <div class="ctaRow" style="margin-top:14px">
+          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">Star on GitHub</a>
+          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager/issues" target="_blank" rel="noreferrer">Report an issue</a>
+        </div>
+
+        <p class="small" style="margin-top:12px">
+          Author: Rachakonda Ravi
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>© </span><span id="year"></span><span> DownloadManager • </span>
+      <a href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">rachakonda-ravi/Download-Manager</a>
+    </footer>
+
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
