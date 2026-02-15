@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'manager'
-version = '1.0.0'
+version = project.findProperty("version") ?: "1.0.0"
 
 repositories {
     mavenCentral()
