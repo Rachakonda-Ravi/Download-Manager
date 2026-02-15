@@ -36,7 +36,11 @@ jobs:
             --main-jar DownloadManager-1.0.0.jar ^
             --main-class manager.Main ^
             --dest dist ^
-            --app-version 1.0.0
+            --app-version 1.0.0 ^
+            --vendor "Rachakonda Ravi" ^
+            --description "Modern Java Download Manager" ^
+            --icon assets\icon.ico
+
 
       - name: 📦 Create MSI
         run: |
@@ -48,8 +52,12 @@ jobs:
             --main-class manager.Main ^
             --dest dist ^
             --app-version 1.0.0 ^
+            --vendor "Rachakonda Ravi" ^
+            --description "Modern Java Download Manager" ^
+            --icon assets\icon.ico ^
             --win-menu ^
             --win-shortcut
+
 
       - name: 📤 Upload EXE
         uses: softprops/action-gh-release@v2
