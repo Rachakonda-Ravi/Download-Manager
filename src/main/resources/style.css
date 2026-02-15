@@ -1,0 +1,14 @@
+.root {
+    -fx-background-color: #121212;
+}
+
+.text-field {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: gray;
+}
+
+.button {
+    -fx-background-color: #2d89ef;
+    -fx-text-fill: white;
+}
