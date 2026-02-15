@@ -17,25 +17,6 @@ dependencies {
 application {
     mainClass = 'manager.Main'
 }
-plugins {
-    id 'java'
-    id 'application'
-}
-
-group = 'manager'
-version = '1.0.0'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'com.google.code.gson:gson:2.10.1'
-}
-
-application {
-    mainClass = 'manager.Main'
-}
 
 jar {
     manifest {
@@ -47,6 +28,8 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 }
