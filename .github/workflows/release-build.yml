@@ -1,0 +1,62 @@
+name: 🚀 Build Windows EXE & MSI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: 🛠 Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: 🔨 Build Fat JAR
+        run: ./gradlew clean build
+
+      - name: 📦 Create EXE
+        run: |
+          jpackage ^
+            --type exe ^
+            --input build\libs ^
+            --name DownloadManager ^
+            --main-jar DownloadManager-1.0.0.jar ^
+            --main-class manager.Main ^
+            --dest dist ^
+            --app-version 1.0.0
+
+      - name: 📦 Create MSI
+        run: |
+          jpackage ^
+            --type msi ^
+            --input build\libs ^
+            --name DownloadManager ^
+            --main-jar DownloadManager-1.0.0.jar ^
+            --main-class manager.Main ^
+            --dest dist ^
+            --app-version 1.0.0 ^
+            --win-menu ^
+            --win-shortcut
+
+      - name: 📤 Upload EXE
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+
+      - name: 📤 Upload MSI
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.msi
