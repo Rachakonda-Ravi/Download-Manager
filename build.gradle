@@ -1,42 +1,26 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.14'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'manager'
-version = project.hasProperty("version") ? project.property("version") : "0.0.1"
+version = '1.0.0'
 
 repositories {
     mavenCentral()
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
 }
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 }
 
-javafx {
-    version = "21"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
-}
-
 application {
     mainClass = 'manager.Main'
 }
 
-jar {
-    archiveBaseName.set("DownloadManager")
-    archiveVersion.set(project.version.toString())
-
-    manifest {
-        attributes(
-            'Main-Class': 'manager.Main'
-        )
-    }
+shadowJar {
+    archiveBaseName.set('DownloadManager')
+    archiveClassifier.set('')
+    archiveVersion.set(project.version)
 }
