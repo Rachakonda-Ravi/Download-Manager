@@ -4,10 +4,22 @@ plugins {
 }
 
 group = 'manager'
-version = '1.0.0'
+
+// Version comes from GitHub release tag if provided
+version = project.hasProperty("version") ? project.property("version") : "0.0.1"
 
 repositories {
     mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 dependencies {
@@ -19,9 +31,12 @@ application {
 }
 
 jar {
+    archiveBaseName.set("DownloadManager")
+    archiveVersion.set(project.version.toString())
+
     manifest {
         attributes(
-                'Main-Class': 'manager.Main'
+            'Main-Class': 'manager.Main'
         )
     }
 
