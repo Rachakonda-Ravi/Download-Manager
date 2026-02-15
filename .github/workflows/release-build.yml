@@ -53,6 +53,30 @@ jobs:
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
 
       # -------------------------------
+      # Clean dist folder
+      # -------------------------------
+      - name: 🧹 Clean dist
+        shell: cmd
+        run: |
+          if exist dist rmdir /s /q dist
+
+
+      - name: 📦 Create App Image (Portable Base)
+        shell: cmd
+        run: |
+          jpackage ^
+            --type app-image ^
+            --input build\libs ^
+            --name DownloadManager ^
+            --main-jar %JAR_FILE% ^
+            --main-class manager.Main ^
+            --dest dist ^
+            --app-version %VERSION% ^
+            --vendor "Rachakonda Ravi" ^
+            --description "Modern Java Download Manager" ^
+            --icon assets\icon.ico
+
+      # -------------------------------
       # Create EXE (use CMD shell!)
       # -------------------------------
       - name: 📦 Create EXE
@@ -96,10 +120,8 @@ jobs:
       - name: 📦 Create Portable ZIP
         shell: powershell
         run: |
-          New-Item -ItemType Directory -Force -Path portable | Out-Null
-          Copy-Item dist\DownloadManager portable\DownloadManager -Recurse -Force
           Compress-Archive `
-            -Path portable\DownloadManager `
+            -Path dist\DownloadManager `
             -DestinationPath dist\DownloadManager-$env:VERSION-Portable.zip
 
       # -------------------------------
