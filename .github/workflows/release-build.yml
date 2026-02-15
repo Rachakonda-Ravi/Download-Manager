@@ -17,7 +17,6 @@ jobs:
 
       # -------------------------------
       # Extract version from release tag
-      # Example: v1.2.3 → 1.2.3
       # -------------------------------
       - name: 🔢 Extract Version
         shell: bash
@@ -37,26 +36,27 @@ jobs:
         with:
           cache-disabled: true
 
-
       # -------------------------------
-      # Build with dynamic version
+      # Build Fat JAR
       # -------------------------------
       - name: 🔨 Build Fat JAR
+        shell: bash
         run: ./gradlew clean build -Pversion=$VERSION
 
       # -------------------------------
-      # Detect built JAR automatically
+      # Detect JAR name (only filename!)
       # -------------------------------
       - name: 📦 Detect JAR Name
         shell: bash
         run: |
-          JAR_FILE=$(ls build/libs/*.jar | head -n 1)
+          JAR_FILE=$(basename $(ls build/libs/*.jar | head -n 1))
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
 
       # -------------------------------
-      # Create EXE
+      # Create EXE (use CMD shell!)
       # -------------------------------
       - name: 📦 Create EXE
+        shell: cmd
         run: |
           jpackage ^
             --type exe ^
@@ -74,6 +74,7 @@ jobs:
       # Create MSI
       # -------------------------------
       - name: 📦 Create MSI
+        shell: cmd
         run: |
           jpackage ^
             --type msi ^
@@ -90,15 +91,16 @@ jobs:
             --win-shortcut
 
       # -------------------------------
-      # Create Portable ZIP (versioned)
+      # Create Portable ZIP
       # -------------------------------
       - name: 📦 Create Portable ZIP
+        shell: powershell
         run: |
-          mkdir portable
-          xcopy dist\DownloadManager portable\DownloadManager /E /I
-          powershell Compress-Archive `
+          New-Item -ItemType Directory -Force -Path portable | Out-Null
+          Copy-Item dist\DownloadManager portable\DownloadManager -Recurse -Force
+          Compress-Archive `
             -Path portable\DownloadManager `
-            -DestinationPath dist\DownloadManager-%VERSION%-Portable.zip
+            -DestinationPath dist\DownloadManager-$env:VERSION-Portable.zip
 
       # -------------------------------
       # Upload All Assets
