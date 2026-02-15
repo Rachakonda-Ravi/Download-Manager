@@ -57,6 +57,12 @@ jobs:
             --icon assets\icon.ico ^
             --win-menu ^
             --win-shortcut
+            
+      - name: 📦 Create Portable ZIP
+        run: |
+          mkdir portable
+          xcopy dist\DownloadManager portable\DownloadManager /E /I
+          powershell Compress-Archive -Path portable\DownloadManager -DestinationPath dist\DownloadManager-Portable.zip
 
 
       - name: 📤 Upload EXE
@@ -68,3 +74,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.msi
+          
+      - name: 📤 Upload ZIP
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
