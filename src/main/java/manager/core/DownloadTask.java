@@ -19,13 +19,16 @@ public class DownloadTask {
     private volatile boolean paused = false;
     private volatile boolean cancelled = false;
 
-    // ==============================
-    // JavaFX Properties
-    // ==============================
+    private final Object pauseLock = new Object();
+
+    // ================= Properties =================
     private final LongProperty totalBytes = new SimpleLongProperty(0);
     private final LongProperty downloadedBytes = new SimpleLongProperty(0);
     private final DoubleProperty progress = new SimpleDoubleProperty(0);
     private final StringProperty status = new SimpleStringProperty("Queued");
+
+    private final DoubleProperty speedMBps = new SimpleDoubleProperty(0);
+    private final StringProperty eta = new SimpleStringProperty("∞");
 
     public DownloadTask(String url, String outputPath) {
         this.url = url;
@@ -36,8 +39,23 @@ public class DownloadTask {
         this.expectedHash = hash;
     }
 
-    public void pause() { paused = true; status.set("Paused"); }
-    public void cancel() { cancelled = true; status.set("Cancelled"); }
+    public void pause() {
+        paused = true;
+        status.set("Paused");
+    }
+
+    public void resume() {
+        paused = false;
+        synchronized (pauseLock) {
+            pauseLock.notifyAll();
+        }
+        status.set("Downloading");
+    }
+
+    public void cancel() {
+        cancelled = true;
+        status.set("Cancelled");
+    }
 
     public void start() {
 
@@ -66,6 +84,9 @@ public class DownloadTask {
                     byte[] buffer = new byte[8192];
                     int len;
 
+                    long lastTime = System.nanoTime();
+                    long lastBytes = downloaded;
+
                     status.set("Downloading");
 
                     while ((len = in.read(buffer)) != -1) {
@@ -76,23 +97,56 @@ public class DownloadTask {
                             return;
                         }
 
-                        while (paused) {
-                            Thread.sleep(200);
+                        if (paused) {
+                            synchronized (pauseLock) {
+                                pauseLock.wait();
+                            }
                         }
 
                         raf.write(buffer, 0, len);
                         downloaded += len;
 
-                        long finalDownloaded = downloaded;
-
                         ResumeStore.saveProgress(url, downloaded);
 
-                        Platform.runLater(() -> {
-                            downloadedBytes.set(finalDownloaded);
-                            if (fullSize > 0) {
+                        long currentTime = System.nanoTime();
+                        long timeDiff = currentTime - lastTime;
+
+                        if (timeDiff >= 1_000_000_000) { // 1 second
+
+                            long bytesDiff = downloaded - lastBytes;
+
+                            double speed =
+                                    (bytesDiff / 1024.0 / 1024.0) /
+                                    (timeDiff / 1_000_000_000.0);
+
+                            long remaining = fullSize - downloaded;
+
+                            double secondsLeft =
+                                    speed > 0 ?
+                                            (remaining / 1024.0 / 1024.0) / speed
+                                            : Double.POSITIVE_INFINITY;
+
+                            long mins = (long) (secondsLeft / 60);
+                            long secs = (long) (secondsLeft % 60);
+
+                            String etaText =
+                                    speed > 0
+                                            ? mins + "m " + secs + "s"
+                                            : "∞";
+
+                            long finalDownloaded = downloaded;
+                            double finalSpeed = speed;
+
+                            Platform.runLater(() -> {
+                                downloadedBytes.set(finalDownloaded);
                                 progress.set((double) finalDownloaded / fullSize);
-                            }
-                        });
+                                speedMBps.set(finalSpeed);
+                                eta.set(etaText);
+                            });
+
+                            lastTime = currentTime;
+                            lastBytes = downloaded;
+                        }
                     }
                 }
 
@@ -109,6 +163,8 @@ public class DownloadTask {
                 }
 
                 status.set("Completed");
+                speedMBps.set(0);
+                eta.set("Done");
 
                 DownloadHistory.add(
                         new HistoryRecord(
@@ -127,31 +183,11 @@ public class DownloadTask {
         }).start();
     }
 
-    // ==============================
-    // Property Getters
-    // ==============================
-    public DoubleProperty progressProperty() {
-        return progress;
-    }
+    // ================= Getters =================
 
-    public StringProperty statusProperty() {
-        return status;
-    }
-
-    public LongProperty downloadedBytesProperty() {
-        return downloadedBytes;
-    }
-
-    public LongProperty totalBytesProperty() {
-        return totalBytes;
-    }
-
-    public String getFileName() {
-        return new File(outputPath).getName();
-    }
-
-    @Override
-    public String toString() {
-        return getFileName();
-    }
+    public DoubleProperty progressProperty() { return progress; }
+    public StringProperty statusProperty() { return status; }
+    public DoubleProperty speedProperty() { return speedMBps; }
+    public StringProperty etaProperty() { return eta; }
+    public String getFileName() { return new File(outputPath).getName(); }
 }
