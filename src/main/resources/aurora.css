@@ -1,0 +1,51 @@
+.root {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-background-color:
+        linear-gradient(to bottom right, #051937, #004d40, #2b0a3d);
+}
+
+/* Cards */
+.card {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(0,255,200,0.25);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,255,200,0.15), 20, 0.3, 0, 0);
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #e0f7fa;
+}
+
+/* Buttons */
+.button {
+    -fx-background-color:
+        linear-gradient(to right, #00f5a0, #8e2de2);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-padding: 6 16;
+}
+
+.button:hover {
+    -fx-opacity: 0.9;
+}
+
+/* Progress */
+.progress-bar {
+    -fx-background-radius: 8;
+}
+
+.progress-bar > .bar {
+    -fx-background-color:
+        linear-gradient(to right, #00f5a0, #00d9f5, #8e2de2);
+    -fx-background-radius: 8;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-border-color: rgba(0,255,200,0.2);
+    -fx-border-width: 0 1 0 0;
+}
