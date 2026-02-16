@@ -3,25 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DownloadManager • Modern Java Download Manager</title>
+  <title>R Download Manager • Modern Java Download Manager</title>
   <meta name="description" content="A modern, high-performance Java-based download manager for Windows with pause/resume, multi-threading, progress tracking, and a download queue." />
 
   <style>
     :root{
-      --bg0:#070a12;
-      --bg1:#0b1220;
-      --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.08);
-      --stroke: rgba(255,255,255,.12);
-      --text:#eaf0ff;
-      --muted: rgba(234,240,255,.72);
-      --muted2: rgba(234,240,255,.55);
+      /* Medium-tone scheme (less neon, more “solid UI”) */
+      --bg0:#0b1220;
+      --bg1:#0f1a2e;
 
-      --brand:#38bdf8;
-      --brand2:#a78bfa;
-      --ok:#22c55e;
-      --warn:#fbbf24;
-      --err:#fb7185;
+      --surface: rgba(24, 36, 64, .88);
+      --surface2: rgba(30, 46, 82, .92);
+      --panel: rgba(20, 30, 54, .94);
+
+      --stroke: rgba(184, 204, 255, .18);
+      --stroke2: rgba(184, 204, 255, .12);
+
+      --text:#e8f0ff;
+      --muted: rgba(232,240,255,.74);
+      --muted2: rgba(232,240,255,.56);
+
+      --brand:#6ea8ff;     /* medium blue */
+      --brand2:#8a7dff;    /* medium violet */
+      --ok:#53d39a;        /* medium green */
+      --warn:#f4c35b;
+      --err:#ff7b9a;
 
       --shadow: 0 22px 70px rgba(0,0,0,.55);
       --shadow2: 0 16px 40px rgba(0,0,0,.35);
@@ -33,9 +39,9 @@
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(1100px 700px at 15% 10%, rgba(56,189,248,.18), transparent 55%),
-        radial-gradient(900px 600px at 85% 15%, rgba(167,139,250,.18), transparent 55%),
-        radial-gradient(900px 700px at 50% 95%, rgba(34,197,94,.12), transparent 60%),
+        radial-gradient(1000px 640px at 18% 12%, rgba(110,168,255,.16), transparent 58%),
+        radial-gradient(820px 560px at 82% 16%, rgba(138,125,255,.14), transparent 56%),
+        radial-gradient(900px 640px at 50% 95%, rgba(83,211,154,.10), transparent 60%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       min-height:100vh;
       display:flex;
@@ -70,27 +76,9 @@
         linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px);
       background-size: 56px 56px;
-      opacity:.08;
+      opacity:.06;
       pointer-events:none;
     }
-
-    header::after{
-      content:"";
-      position:absolute;
-      inset:-40%;
-      background: conic-gradient(from 180deg,
-        rgba(56,189,248,.0),
-        rgba(56,189,248,.10),
-        rgba(167,139,250,.10),
-        rgba(34,197,94,.08),
-        rgba(56,189,248,.0)
-      );
-      opacity:.35;
-      filter: blur(18px);
-      animation: aura 18s linear infinite;
-      pointer-events:none;
-    }
-    @keyframes aura { to { transform: rotate(360deg); } }
 
     nav{
       position: relative;
@@ -102,39 +90,26 @@
       z-index:1;
     }
 
-    .brand{
+    .brandRow{
       display:flex;
       align-items:center;
       gap: 10px;
-      font-weight: 800;
+      font-weight: 850;
       letter-spacing:.2px;
     }
 
     .logo{
-      width: 36px;
-      height: 36px;
-      border-radius: 13px;
-      background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(167,139,250,.95));
-      box-shadow: 0 12px 30px rgba(56,189,248,.18);
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(110,168,255,.95), rgba(138,125,255,.92));
+      box-shadow: 0 14px 34px rgba(110,168,255,.18);
       display:grid;
       place-items:center;
-      border: 1px solid rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.20);
       flex: 0 0 auto;
-      position: relative;
-      overflow:hidden;
     }
-    .logo::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.25) 45%, transparent 55%);
-      transform: translateX(-80%);
-      animation: sheen 4.5s linear infinite;
-      opacity:.35;
-    }
-    @keyframes sheen { to { transform: translateX(80%); } }
-
-    .logo svg{ width: 20px; height: 20px; opacity:.98; position: relative; z-index:1; }
+    .logo svg{ width: 20px; height: 20px; opacity:.98; }
 
     .navlinks{
       display:flex;
@@ -147,14 +122,14 @@
       padding: 9px 12px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.04);
+      background: rgba(10,16,30,.28);
       color: var(--muted);
       font-size: 13px;
       transition: transform .2s ease, background .2s ease, border-color .2s ease;
     }
     .chip:hover{
       transform: translateY(-1px);
-      background: rgba(255,255,255,.06);
+      background: rgba(10,16,30,.40);
       border-color: rgba(255,255,255,.22);
       color: var(--text);
     }
@@ -195,17 +170,17 @@
       padding: 9px 12px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.04);
+      background: rgba(10,16,30,.22);
       color: var(--muted);
       font-size: 13px;
     }
     .dot{
       width: 8px; height: 8px; border-radius: 999px;
       background: var(--brand);
-      box-shadow: 0 0 0 3px rgba(56,189,248,.14);
+      box-shadow: 0 0 0 3px rgba(110,168,255,.12);
     }
-    .dot.ok{ background: var(--ok); box-shadow: 0 0 0 3px rgba(34,197,94,.14); }
-    .dot.purple{ background: var(--brand2); box-shadow: 0 0 0 3px rgba(167,139,250,.14); }
+    .dot.ok{ background: var(--ok); box-shadow: 0 0 0 3px rgba(83,211,154,.12); }
+    .dot.purple{ background: var(--brand2); box-shadow: 0 0 0 3px rgba(138,125,255,.12); }
 
     .ctaRow{
       display:flex;
@@ -222,9 +197,9 @@
       padding: 12px 14px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.05);
+      background: rgba(10,16,30,.22);
       color: var(--text);
-      font-weight: 700;
+      font-weight: 760;
       font-size: 14px;
       transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
       cursor:pointer;
@@ -234,40 +209,26 @@
     }
     .btn:hover{
       transform: translateY(-2px);
-      background: rgba(255,255,255,.07);
-      border-color: rgba(255,255,255,.24);
+      background: rgba(10,16,30,.32);
+      border-color: rgba(255,255,255,.22);
       box-shadow: 0 18px 44px rgba(0,0,0,.25);
     }
 
     .btn.primary{
-      border-color: rgba(56,189,248,.35);
-      background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(167,139,250,.85));
-      color: #07101e;
-      box-shadow: 0 16px 45px rgba(56,189,248,.16);
+      border-color: rgba(110,168,255,.40);
+      background: linear-gradient(135deg, rgba(110,168,255,.92), rgba(138,125,255,.82));
+      color: #091226;
+      box-shadow: 0 16px 45px rgba(110,168,255,.14);
     }
     .btn.primary:hover{
-      box-shadow: 0 20px 62px rgba(56,189,248,.24);
+      box-shadow: 0 20px 62px rgba(110,168,255,.22);
     }
 
     .btn svg{ width: 16px; height: 16px; }
-    .btn .spark{
-      position:absolute;
-      inset:-40%;
-      background: conic-gradient(from 140deg,
-        rgba(255,255,255,.0),
-        rgba(255,255,255,.20),
-        rgba(255,255,255,.0)
-      );
-      opacity:.25;
-      filter: blur(10px);
-      animation: spark 7s linear infinite;
-      pointer-events:none;
-    }
-    @keyframes spark { to { transform: rotate(360deg);} }
 
     .panel{
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
+      border: 1px solid var(--stroke2);
+      background: var(--panel);
       border-radius: 16px;
       padding: 16px;
       height:100%;
@@ -286,7 +247,7 @@
     .panelTitle h3{
       font-size: 14px;
       color: var(--muted);
-      font-weight: 800;
+      font-weight: 850;
       letter-spacing:.25px;
     }
     .pill{
@@ -294,8 +255,9 @@
       padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
-      color: rgba(234,240,255,.66);
-      background: rgba(255,255,255,.03);
+      color: rgba(232,240,255,.70);
+      background: rgba(10,16,30,.28);
+      white-space: nowrap;
     }
 
     .kvs{
@@ -311,7 +273,7 @@
       padding: 12px;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
+      background: rgba(8,12,22,.35);
     }
     .kv b{
       font-size: 13px;
@@ -331,7 +293,7 @@
 
     .card{
       border: 1px solid var(--stroke);
-      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.03));
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border-radius: var(--radius);
       padding: 18px;
       box-shadow: 0 10px 30px rgba(0,0,0,.30);
@@ -361,8 +323,8 @@
     .check{
       width: 18px; height: 18px;
       border-radius: 6px;
-      background: rgba(34,197,94,.14);
-      border: 1px solid rgba(34,197,94,.28);
+      background: rgba(83,211,154,.16);
+      border: 1px solid rgba(83,211,154,.30);
       display:grid;
       place-items:center;
       flex: 0 0 auto;
@@ -377,23 +339,23 @@
     }
 
     footer{
-      color: rgba(234,240,255,.62);
+      color: rgba(232,240,255,.62);
       font-size: 13px;
       text-align:center;
       padding: 10px 0 2px;
     }
     footer a{
-      border-bottom: 1px dashed rgba(234,240,255,.35);
+      border-bottom: 1px dashed rgba(232,240,255,.35);
     }
     footer a:hover{
-      border-bottom-color: rgba(234,240,255,.6);
+      border-bottom-color: rgba(232,240,255,.6);
     }
 
-    /* Modal */
+    /* Modal: more solid */
     .modalOverlay{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.55);
+      background: rgba(6,10,18,.78);
       display:none;
       align-items:center;
       justify-content:center;
@@ -403,29 +365,25 @@
     .modalOverlay.show{ display:flex; }
 
     .modal{
-      width: min(560px, 100%);
+      width: min(620px, 100%);
       border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      box-shadow: 0 30px 90px rgba(0,0,0,.6);
+      border: 1px solid rgba(184,204,255,.22);
+      background: linear-gradient(180deg, rgba(30,46,82,.96), rgba(20,30,54,.96));
+      box-shadow: 0 34px 110px rgba(0,0,0,.75);
       padding: 18px;
       position: relative;
       overflow:hidden;
     }
+
     .modal::before{
       content:"";
       position:absolute;
-      inset:-40%;
-      background: conic-gradient(from 180deg,
-        rgba(56,189,248,.0),
-        rgba(56,189,248,.14),
-        rgba(167,139,250,.14),
-        rgba(34,197,94,.10),
-        rgba(56,189,248,.0)
-      );
-      opacity:.35;
-      filter: blur(16px);
-      animation: aura 18s linear infinite;
+      inset:0;
+      background:
+        radial-gradient(520px 180px at 20% 0%, rgba(110,168,255,.18), transparent 60%),
+        radial-gradient(520px 180px at 80% 0%, rgba(138,125,255,.14), transparent 62%),
+        radial-gradient(520px 180px at 55% 100%, rgba(83,211,154,.10), transparent 62%);
+      opacity:.95;
       pointer-events:none;
     }
 
@@ -449,9 +407,30 @@
       line-height: 1.55;
     }
 
+    .licenseTag{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(8,12,22,.35);
+      color: rgba(232,240,255,.72);
+      width: fit-content;
+    }
+    .licenseDot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--ok);
+      box-shadow: 0 0 0 3px rgba(83,211,154,.12);
+    }
+
     .closeBtn{
       border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.05);
+      background: rgba(8,12,22,.28);
       color: var(--text);
       border-radius: 12px;
       width: 40px;
@@ -465,8 +444,8 @@
     }
     .closeBtn:hover{
       transform: translateY(-1px);
-      background: rgba(255,255,255,.07);
-      border-color: rgba(255,255,255,.24);
+      background: rgba(8,12,22,.40);
+      border-color: rgba(255,255,255,.22);
     }
 
     .options{
@@ -484,16 +463,31 @@
       gap: 12px;
       padding: 12px;
       border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(184,204,255,.16);
+      background: rgba(8,12,22,.35);
     }
 
     .optLeft b{ display:block; font-size: 13px; letter-spacing:.2px; }
     .optLeft span{ display:block; margin-top: 4px; color: var(--muted2); font-size: 12px; }
 
-    .optBtn{
-      white-space:nowrap;
+    .optBtn{ white-space:nowrap; }
+
+    .statusLine{
+      position:relative;
+      z-index:1;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(8,12,22,.30);
+      color: rgba(232,240,255,.82);
+      font-size: 12.5px;
+      display:none;
     }
+    .statusLine.show{ display:block; }
+    .statusLine.ok{ border-color: rgba(83,211,154,.30); }
+    .statusLine.warn{ border-color: rgba(244,195,91,.30); }
+    .statusLine.err{ border-color: rgba(255,123,154,.30); }
 
     .modalFoot{
       position:relative;
@@ -504,32 +498,17 @@
       gap: 10px;
       flex-wrap:wrap;
       align-items:center;
+      padding-top: 10px;
+      border-top: 1px solid rgba(184,204,255,.14);
     }
 
     .linkMuted{
-      color: rgba(234,240,255,.70);
+      color: rgba(232,240,255,.70);
       font-size: 12.5px;
     }
     .linkMuted a{
-      border-bottom: 1px dashed rgba(234,240,255,.35);
+      border-bottom: 1px dashed rgba(232,240,255,.35);
     }
-
-    .statusLine{
-      position:relative;
-      z-index:1;
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      color: rgba(234,240,255,.80);
-      font-size: 12.5px;
-      display:none;
-    }
-    .statusLine.show{ display:block; }
-    .statusLine.ok{ border-color: rgba(34,197,94,.25); }
-    .statusLine.warn{ border-color: rgba(251,191,36,.25); }
-    .statusLine.err{ border-color: rgba(251,113,133,.25); }
 
     @media (max-width: 920px){
       .hero{ grid-template-columns: 1fr; }
@@ -544,7 +523,7 @@
 
     <header>
       <nav>
-        <div class="brand">
+        <div class="brandRow">
           <div class="logo" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M12 3v10" stroke="white" stroke-width="2" stroke-linecap="round"/>
@@ -552,7 +531,7 @@
               <path d="M5 19h14" stroke="white" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <span>DownloadManager</span>
+          <span>R Download Manager</span>
         </div>
 
         <div class="navlinks">
@@ -565,7 +544,7 @@
         <div class="headline">
           <h1>Modern, fast Java download manager for Windows</h1>
           <p>
-            DownloadManager is a high-performance Java-based download manager with multi-threaded downloads,
+            R Download Manager is a high-performance Java-based download manager with multi-threaded downloads,
             pause/resume support, real-time progress tracking, and download queue management.
           </p>
 
@@ -576,9 +555,7 @@
           </div>
 
           <div class="ctaRow">
-            <!-- Changed: button opens modal -->
             <button class="btn primary" id="downloadLatestBtn" type="button">
-              <span class="spark"></span>
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 3v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -588,7 +565,6 @@
             </button>
 
             <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">
-              <span class="spark"></span>
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M9 19c-4 1.5-4-2.5-6-3m12 6v-3.87c0-1.08.37-2.13 1.03-2.97 2.17-2.73.74-6.71-2.66-7.34-1.04-.2-2.12-.2-3.16 0-3.4.63-4.83 4.61-2.66 7.34.66.84 1.03 1.89 1.03 2.97V22"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -701,8 +677,8 @@
         </p>
 
         <div class="ctaRow" style="margin-top:14px">
-          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer"><span class="spark"></span>Star on GitHub</a>
-          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager/issues" target="_blank" rel="noreferrer"><span class="spark"></span>Report an issue</a>
+          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">Star on GitHub</a>
+          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager/issues" target="_blank" rel="noreferrer">Report an issue</a>
         </div>
 
         <p class="small" style="margin-top:12px">
@@ -712,7 +688,10 @@
     </main>
 
     <footer>
-      <span>© </span><span id="year"></span><span> DownloadManager • </span>
+      <span>© </span><span id="year"></span>
+      <span> R Download Manager • </span>
+      <span>MIT License • </span>
+      <span>Copyright 2026 Rachakonda Ravi Kumar • </span>
       <a href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">rachakonda-ravi/Download-Manager</a>
     </footer>
 
@@ -723,12 +702,11 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modalHead">
         <div>
-          <h3 id="modalTitle">Choose your download</h3>
-          <p id="modalSubtitle">We’ll try to fetch the latest release and download the selected file directly.</p>
+          <h3 id="modalTitle">Download latest release</h3>
+          <p id="modalSubtitle">Choose a format. We’ll try to fetch the newest release and start the download directly.</p>
+          <div class="licenseTag"><span class="licenseDot"></span> MIT licensed</div>
         </div>
-        <button class="closeBtn" id="closeModalBtn" type="button" aria-label="Close">
-          ✕
-        </button>
+        <button class="closeBtn" id="closeModalBtn" type="button" aria-label="Close">✕</button>
       </div>
 
       <div class="options">
@@ -737,9 +715,7 @@
             <b>Windows EXE</b>
             <span>Standard installer</span>
           </div>
-          <button class="btn primary optBtn" type="button" data-kind="exe">
-            <span class="spark"></span>Download .exe
-          </button>
+          <button class="btn primary optBtn" type="button" data-kind="exe">Download .exe</button>
         </div>
 
         <div class="opt">
@@ -747,9 +723,7 @@
             <b>Windows MSI</b>
             <span>Enterprise-friendly installer</span>
           </div>
-          <button class="btn primary optBtn" type="button" data-kind="msi">
-            <span class="spark"></span>Download .msi
-          </button>
+          <button class="btn primary optBtn" type="button" data-kind="msi">Download .msi</button>
         </div>
 
         <div class="opt">
@@ -757,9 +731,7 @@
             <b>Portable ZIP</b>
             <span>No installation required</span>
           </div>
-          <button class="btn primary optBtn" type="button" data-kind="portable">
-            <span class="spark"></span>Download Portable
-          </button>
+          <button class="btn primary optBtn" type="button" data-kind="portable">Download Portable</button>
         </div>
       </div>
 
@@ -767,10 +739,9 @@
 
       <div class="modalFoot">
         <div class="linkMuted">
-          If direct download can’t be resolved, use
+          If direct download can’t be resolved, use the
           <a href="https://github.com/Rachakonda-Ravi/Download-Manager/releases" target="_blank" rel="noreferrer">Releases page</a>.
         </div>
-        <a class="chip" href="https://github.com/Rachakonda-Ravi/Download-Manager/releases" target="_blank" rel="noreferrer">Open Releases</a>
       </div>
     </div>
   </div>
@@ -781,15 +752,15 @@
     const REPO  = "Download-Manager";
     const RELEASES_PAGE = `https://github.com/${OWNER}/${REPO}/releases`;
 
-    // Fallback (your current v1.0 direct links)
+    // Fallback (v1.0 direct links you provided)
     const FALLBACK = {
       exe: "https://github.com/Rachakonda-Ravi/Download-Manager/releases/download/v1.0/DownloadManager-1.0.exe",
       msi: "https://github.com/Rachakonda-Ravi/Download-Manager/releases/download/v1.0/DownloadManager-1.0.msi",
       portable: "https://github.com/Rachakonda-Ravi/Download-Manager/releases/download/v1.0/DownloadManager-1.0-Portable.zip"
     };
 
-    // GitHub API: get latest release (public repos can be queried without auth)
-    // Docs: GET /repos/{owner}/{repo}/releases/latest returns latest published non-draft non-prerelease [page:0]
+    // GitHub API: latest release
+    // GET /repos/{owner}/{repo}/releases/latest returns latest published release
     const API_LATEST = `https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`;
 
     // ====== UI helpers ======
@@ -817,7 +788,6 @@
     }
 
     function startDirectDownload(url){
-      // Let browser handle direct download
       const a = document.createElement("a");
       a.href = url;
       a.target = "_blank";
@@ -827,25 +797,20 @@
       a.remove();
     }
 
-    // ====== Latest release resolution ======
     async function getLatestRelease(){
-      const res = await fetch(API_LATEST, {
-        headers: { "Accept": "application/vnd.github+json" }
-      });
+      const res = await fetch(API_LATEST, { headers: { "Accept": "application/vnd.github+json" } });
       if (!res.ok) throw new Error(`GitHub API error ${res.status}`);
       return await res.json();
     }
 
     function pickAssetUrl(releaseJson, kind){
-      // Assets contain browser_download_url [page:0]
       const assets = Array.isArray(releaseJson.assets) ? releaseJson.assets : [];
-      const byExt = {
+      const byKind = {
         exe: (name) => name.toLowerCase().endsWith(".exe"),
         msi: (name) => name.toLowerCase().endsWith(".msi"),
         portable: (name) => name.toLowerCase().includes("portable") && name.toLowerCase().endsWith(".zip")
       };
-
-      const match = assets.find(a => a && a.name && byExt[kind] && byExt[kind](a.name));
+      const match = assets.find(a => a && a.name && byKind[kind] && byKind[kind](a.name));
       return match && match.browser_download_url ? match.browser_download_url : null;
     }
 
@@ -856,21 +821,17 @@
         const latest = await getLatestRelease();
         const tag = latest.tag_name || "latest";
         releasePill.textContent = `Latest: ${tag}`;
-        releasePill.style.borderColor = "rgba(34,197,94,.25)";
-        releasePill.style.color = "rgba(234,240,255,.80)";
 
         const url = pickAssetUrl(latest, kind);
         if (url){
-          setStatus(`Starting download from latest release (${tag})…`, "ok");
+          setStatus(`Starting download from ${tag}…`, "ok");
           startDirectDownload(url);
           return;
         }
 
-        // If asset not found, fall back
         setStatus("Couldn’t find that asset in the latest release. Opening Releases page…", "err");
         startDirectDownload(RELEASES_PAGE);
       }catch(e){
-        // API might be blocked by rate limits/CORS/network; fall back to fixed v1.0 links or release page
         if (FALLBACK[kind]){
           setStatus("Couldn’t fetch latest release. Using fallback direct link (v1.0)…", "warn");
           startDirectDownload(FALLBACK[kind]);
@@ -881,7 +842,7 @@
       }
     }
 
-    // ====== Wire up events ======
+    // Events
     downloadLatestBtn.addEventListener("click", openModal);
     closeModalBtn.addEventListener("click", closeModal);
 
@@ -900,7 +861,7 @@
     // Footer year
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Populate latest pill (non-blocking)
+    // Non-blocking latest badge
     (async () => {
       try{
         const latest = await getLatestRelease();
