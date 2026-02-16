@@ -2,7 +2,7 @@ package manager.ui;
 
 import javafx.application.Application;
 import javafx.collections.*;
-import javafx.geometry.Insets;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -16,9 +16,6 @@ public class MainUI extends Application {
     private final ObservableList<DownloadTask> downloads =
             FXCollections.observableArrayList();
 
-    private StackPane contentContainer;
-    private ListView<DownloadTask> listView;
-    private VBox cardView;
     private TableView<DownloadTask> tableView;
     private Scene scene;
 
@@ -27,36 +24,71 @@ public class MainUI extends Application {
 
         BorderPane root = new BorderPane();
 
-        // HEADER
-        Label title = new Label("®️ Download Manager");
-        title.setStyle("-fx-font-size:18px; -fx-font-weight:bold;");
+        // ===== LEFT SIDEBAR =====
+        VBox sidebar = new VBox(20);
+        sidebar.setPadding(new Insets(20));
+        sidebar.setPrefWidth(220);
+        sidebar.getStyleClass().add("sidebar");
 
-        ComboBox<String> viewSelector = new ComboBox<>();
-        viewSelector.getItems().addAll("List View", "Card View", "Table View");
-        viewSelector.setValue("List View");
+        Label logo = new Label("®️ Download Manager");
+        logo.getStyleClass().add("logo");
 
-        HBox header = new HBox(20, title, viewSelector);
-        header.setPadding(new Insets(10));
-        root.setTop(header);
+        Button dashboardBtn = new Button("Dashboard");
+        Button activeBtn = new Button("Active");
+        Button completedBtn = new Button("Completed");
 
-        // CENTER
-        contentContainer = new StackPane();
-        contentContainer.setPadding(new Insets(15));
-        root.setCenter(contentContainer);
+        ComboBox<String> themeBox = new ComboBox<>();
+        themeBox.getItems().addAll("Dark", "Light", "Purple-Gold");
+        themeBox.setValue("Dark");
 
-        createListView();
-        createCardView();
+        themeBox.setOnAction(e -> {
+            switch (themeBox.getValue()) {
+                case "Dark":
+                    ThemeManager.applyTheme(scene, ThemeManager.Theme.DARK);
+                    break;
+                case "Light":
+                    ThemeManager.applyTheme(scene, ThemeManager.Theme.LIGHT);
+                    break;
+                case "Purple-Gold":
+                    ThemeManager.applyTheme(scene, ThemeManager.Theme.PURPLE_GOLD);
+                    break;
+            }
+        });
+
+        sidebar.getChildren().addAll(
+                logo,
+                new Separator(),
+                dashboardBtn,
+                activeBtn,
+                completedBtn,
+                new Separator(),
+                new Label("Theme"),
+                themeBox
+        );
+
+        root.setLeft(sidebar);
+
+        // ===== CENTER DASHBOARD =====
+        VBox center = new VBox(15);
+        center.setPadding(new Insets(20));
+
+        HBox statsBar = new HBox(20);
+        statsBar.getChildren().addAll(
+                createStatCard("Total", "0"),
+                createStatCard("Active", "0"),
+                createStatCard("Completed", "0")
+        );
+
         createTableView();
 
-        contentContainer.getChildren().add(listView);
+        center.getChildren().addAll(statsBar, tableView);
+        root.setCenter(center);
 
-        viewSelector.setOnAction(e -> switchView(viewSelector.getValue()));
-
-        // BOTTOM
+        // ===== BOTTOM BAR =====
         TextField urlField = new TextField();
         urlField.setPromptText("Enter download URL");
 
-        Button downloadBtn = new Button("Download");
+        Button downloadBtn = new Button("Start Download");
 
         downloadBtn.setOnAction(e -> {
             String url = urlField.getText();
@@ -76,157 +108,35 @@ public class MainUI extends Application {
             }
         });
 
-        HBox bottomBar = new HBox(10, urlField, downloadBtn);
-        bottomBar.setPadding(new Insets(10));
-        root.setBottom(bottomBar);
+        HBox bottom = new HBox(10, urlField, downloadBtn);
+        bottom.setPadding(new Insets(15));
+        bottom.setAlignment(Pos.CENTER_LEFT);
 
-        scene = new Scene(root, 1000, 650);
+        root.setBottom(bottom);
+
+        scene = new Scene(root, 1200, 750);
+
+        ThemeManager.applyTheme(scene, ThemeManager.Theme.DARK);
+
         stage.setTitle("®️ Download Manager");
         stage.setScene(scene);
         stage.show();
     }
 
-    // ================= LIST VIEW =================
+    private VBox createStatCard(String title, String value) {
 
-    private void createListView() {
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("stat-title");
 
-        listView = new ListView<>(downloads);
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().add("stat-value");
 
-        listView.setCellFactory(param -> new ListCell<>() {
+        VBox card = new VBox(5, titleLabel, valueLabel);
+        card.setPadding(new Insets(15));
+        card.getStyleClass().add("stat-card");
 
-            @Override
-            protected void updateItem(DownloadTask task, boolean empty) {
-                super.updateItem(task, empty);
-
-                if (empty || task == null) {
-                    setGraphic(null);
-                    return;
-                }
-
-                Label name = new Label(task.getFileName());
-
-                ProgressBar bar = new ProgressBar();
-                bar.setPrefWidth(450);
-                bar.progressProperty().bind(task.progressProperty());
-
-                Label percent = new Label();
-                percent.textProperty().bind(
-                        task.progressProperty()
-                                .multiply(100)
-                                .asString("%.0f%%")
-                );
-
-                Label speed = new Label();
-                speed.textProperty().bind(
-                        task.speedProperty()
-                                .asString("Speed: %.2f MB/s")
-                );
-
-                Label eta = new Label();
-                eta.textProperty().bind(
-                        task.etaProperty()
-                                .concat(" remaining")
-                );
-
-                Label status = new Label();
-                status.textProperty().bind(task.statusProperty());
-
-                Button pauseResume = new Button("Pause");
-
-                pauseResume.setOnAction(e -> {
-                    if (pauseResume.getText().equals("Pause")) {
-                        task.pause();
-                        pauseResume.setText("Resume");
-                    } else {
-                        task.resume();
-                        pauseResume.setText("Pause");
-                    }
-                });
-
-                VBox box = new VBox(
-                        5,
-                        name,
-                        bar,
-                        percent,
-                        speed,
-                        eta,
-                        status,
-                        pauseResume
-                );
-
-                box.setPadding(new Insets(8));
-                box.setStyle("-fx-border-color: #444; -fx-border-radius: 5;");
-
-                setGraphic(box);
-            }
-        });
+        return card;
     }
-
-    // ================= CARD VIEW =================
-
-    private void createCardView() {
-
-        cardView = new VBox(10);
-
-        downloads.addListener((ListChangeListener<DownloadTask>) change -> {
-            refreshCardView();
-        });
-    }
-
-    private void refreshCardView() {
-
-        cardView.getChildren().clear();
-
-        for (DownloadTask task : downloads) {
-
-            Label name = new Label(task.getFileName());
-
-            ProgressBar bar = new ProgressBar();
-            bar.setPrefWidth(400);
-            bar.progressProperty().bind(task.progressProperty());
-
-            Label speed = new Label();
-            speed.textProperty().bind(
-                    task.speedProperty()
-                            .asString("Speed: %.2f MB/s")
-            );
-
-            Label eta = new Label();
-            eta.textProperty().bind(task.etaProperty());
-
-            Label status = new Label();
-            status.textProperty().bind(task.statusProperty());
-
-            Button pauseResume = new Button("Pause");
-
-            pauseResume.setOnAction(e -> {
-                if (pauseResume.getText().equals("Pause")) {
-                    task.pause();
-                    pauseResume.setText("Resume");
-                } else {
-                    task.resume();
-                    pauseResume.setText("Pause");
-                }
-            });
-
-            VBox card = new VBox(
-                    5,
-                    name,
-                    bar,
-                    speed,
-                    eta,
-                    status,
-                    pauseResume
-            );
-
-            card.setPadding(new Insets(10));
-            card.setStyle("-fx-border-color: gray;");
-
-            cardView.getChildren().add(card);
-        }
-    }
-
-    // ================= TABLE VIEW =================
 
     private void createTableView() {
 
@@ -263,7 +173,7 @@ public class MainUI extends Application {
         });
 
         TableColumn<DownloadTask, String> speedCol =
-                new TableColumn<>("Speed (MB/s)");
+                new TableColumn<>("Speed");
 
         speedCol.setCellValueFactory(data ->
                 data.getValue().speedProperty().asObject()
@@ -290,25 +200,5 @@ public class MainUI extends Application {
                 etaCol,
                 statusCol
         );
-    }
-
-    // ================= SWITCH VIEW =================
-
-    private void switchView(String view) {
-
-        contentContainer.getChildren().clear();
-
-        switch (view) {
-            case "List View":
-                contentContainer.getChildren().add(listView);
-                break;
-            case "Card View":
-                refreshCardView();
-                contentContainer.getChildren().add(cardView);
-                break;
-            case "Table View":
-                contentContainer.getChildren().add(tableView);
-                break;
-        }
     }
 }
