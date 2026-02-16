@@ -16,10 +16,15 @@
       --text:#eaf0ff;
       --muted: rgba(234,240,255,.72);
       --muted2: rgba(234,240,255,.55);
+
       --brand:#38bdf8;
       --brand2:#a78bfa;
       --ok:#22c55e;
+      --warn:#fbbf24;
+      --err:#fb7185;
+
       --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --shadow2: 0 16px 40px rgba(0,0,0,.35);
       --radius: 18px;
     }
 
@@ -57,7 +62,6 @@
       overflow:hidden;
     }
 
-    /* subtle grid */
     header::before{
       content:"";
       position:absolute;
@@ -69,6 +73,24 @@
       opacity:.08;
       pointer-events:none;
     }
+
+    header::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 180deg,
+        rgba(56,189,248,.0),
+        rgba(56,189,248,.10),
+        rgba(167,139,250,.10),
+        rgba(34,197,94,.08),
+        rgba(56,189,248,.0)
+      );
+      opacity:.35;
+      filter: blur(18px);
+      animation: aura 18s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes aura { to { transform: rotate(360deg); } }
 
     nav{
       position: relative;
@@ -84,22 +106,35 @@
       display:flex;
       align-items:center;
       gap: 10px;
-      font-weight: 750;
+      font-weight: 800;
       letter-spacing:.2px;
     }
 
     .logo{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 13px;
       background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(167,139,250,.95));
       box-shadow: 0 12px 30px rgba(56,189,248,.18);
       display:grid;
       place-items:center;
       border: 1px solid rgba(255,255,255,.18);
       flex: 0 0 auto;
+      position: relative;
+      overflow:hidden;
     }
-    .logo svg{ width: 20px; height: 20px; opacity:.98; }
+    .logo::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.25) 45%, transparent 55%);
+      transform: translateX(-80%);
+      animation: sheen 4.5s linear infinite;
+      opacity:.35;
+    }
+    @keyframes sheen { to { transform: translateX(80%); } }
+
+    .logo svg{ width: 20px; height: 20px; opacity:.98; position: relative; z-index:1; }
 
     .navlinks{
       display:flex;
@@ -178,6 +213,7 @@
       flex-wrap:wrap;
       margin-top: 10px;
     }
+
     .btn{
       display:inline-flex;
       align-items:center;
@@ -188,27 +224,46 @@
       border: 1px solid rgba(255,255,255,.16);
       background: rgba(255,255,255,.05);
       color: var(--text);
-      font-weight: 650;
+      font-weight: 700;
       font-size: 14px;
       transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
       cursor:pointer;
+      position: relative;
+      overflow:hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
     }
     .btn:hover{
       transform: translateY(-2px);
       background: rgba(255,255,255,.07);
       border-color: rgba(255,255,255,.24);
+      box-shadow: 0 18px 44px rgba(0,0,0,.25);
     }
+
     .btn.primary{
       border-color: rgba(56,189,248,.35);
       background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(167,139,250,.85));
       color: #07101e;
-      box-shadow: 0 14px 40px rgba(56,189,248,.16);
+      box-shadow: 0 16px 45px rgba(56,189,248,.16);
     }
     .btn.primary:hover{
-      box-shadow: 0 18px 55px rgba(56,189,248,.22);
+      box-shadow: 0 20px 62px rgba(56,189,248,.24);
     }
 
     .btn svg{ width: 16px; height: 16px; }
+    .btn .spark{
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 140deg,
+        rgba(255,255,255,.0),
+        rgba(255,255,255,.20),
+        rgba(255,255,255,.0)
+      );
+      opacity:.25;
+      filter: blur(10px);
+      animation: spark 7s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes spark { to { transform: rotate(360deg);} }
 
     .panel{
       border: 1px solid rgba(255,255,255,.12);
@@ -219,6 +274,7 @@
       display:flex;
       flex-direction:column;
       gap: 12px;
+      box-shadow: var(--shadow2);
     }
 
     .panelTitle{
@@ -230,7 +286,7 @@
     .panelTitle h3{
       font-size: 14px;
       color: var(--muted);
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing:.25px;
     }
     .pill{
@@ -333,6 +389,148 @@
       border-bottom-color: rgba(234,240,255,.6);
     }
 
+    /* Modal */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 20px;
+      z-index: 999;
+    }
+    .modalOverlay.show{ display:flex; }
+
+    .modal{
+      width: min(560px, 100%);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: 0 30px 90px rgba(0,0,0,.6);
+      padding: 18px;
+      position: relative;
+      overflow:hidden;
+    }
+    .modal::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 180deg,
+        rgba(56,189,248,.0),
+        rgba(56,189,248,.14),
+        rgba(167,139,250,.14),
+        rgba(34,197,94,.10),
+        rgba(56,189,248,.0)
+      );
+      opacity:.35;
+      filter: blur(16px);
+      animation: aura 18s linear infinite;
+      pointer-events:none;
+    }
+
+    .modalHead{
+      position:relative;
+      z-index:1;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .modalHead h3{
+      font-size: 15px;
+      letter-spacing: .2px;
+    }
+    .modalHead p{
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .closeBtn{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+      position:relative;
+      z-index:1;
+    }
+    .closeBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.07);
+      border-color: rgba(255,255,255,.24);
+    }
+
+    .options{
+      position:relative;
+      z-index:1;
+      display:grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .opt{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+    }
+
+    .optLeft b{ display:block; font-size: 13px; letter-spacing:.2px; }
+    .optLeft span{ display:block; margin-top: 4px; color: var(--muted2); font-size: 12px; }
+
+    .optBtn{
+      white-space:nowrap;
+    }
+
+    .modalFoot{
+      position:relative;
+      z-index:1;
+      margin-top: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .linkMuted{
+      color: rgba(234,240,255,.70);
+      font-size: 12.5px;
+    }
+    .linkMuted a{
+      border-bottom: 1px dashed rgba(234,240,255,.35);
+    }
+
+    .statusLine{
+      position:relative;
+      z-index:1;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: rgba(234,240,255,.80);
+      font-size: 12.5px;
+      display:none;
+    }
+    .statusLine.show{ display:block; }
+    .statusLine.ok{ border-color: rgba(34,197,94,.25); }
+    .statusLine.warn{ border-color: rgba(251,191,36,.25); }
+    .statusLine.err{ border-color: rgba(251,113,133,.25); }
+
     @media (max-width: 920px){
       .hero{ grid-template-columns: 1fr; }
       main{ grid-template-columns: 1fr; }
@@ -378,17 +576,20 @@
           </div>
 
           <div class="ctaRow">
-            <a class="btn primary" href="https://github.com/Rachakonda-Ravi/Download-Manager/releases" target="_blank" rel="noreferrer">
-              <svg viewBox="0 0 24 24" fill="none">
+            <!-- Changed: button opens modal -->
+            <button class="btn primary" id="downloadLatestBtn" type="button">
+              <span class="spark"></span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 3v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
               Download latest
-            </a>
+            </button>
 
             <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">
-              <svg viewBox="0 0 24 24" fill="none">
+              <span class="spark"></span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M9 19c-4 1.5-4-2.5-6-3m12 6v-3.87c0-1.08.37-2.13 1.03-2.97 2.17-2.73.74-6.71-2.66-7.34-1.04-.2-2.12-.2-3.16 0-3.4.63-4.83 4.61-2.66 7.34.66.84 1.03 1.89 1.03 2.97V22"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -404,28 +605,22 @@
         <aside class="panel">
           <div class="panelTitle">
             <h3>Quick info</h3>
-            <span class="pill">Built with Java 21</span>
+            <span class="pill" id="releasePill">Fetching latest release…</span>
           </div>
 
           <div class="kvs">
             <div class="kv">
-              <div>
-                <b>Download formats</b>
-              </div>
+              <div><b>Download formats</b></div>
               <span>EXE installer, MSI installer, Portable ZIP</span>
             </div>
 
             <div class="kv">
-              <div>
-                <b>Automation</b>
-              </div>
+              <div><b>Automation</b></div>
               <span>Automated Windows release builds via GitHub Actions</span>
             </div>
 
             <div class="kv">
-              <div>
-                <b>Versioning</b>
-              </div>
+              <div><b>Versioning</b></div>
               <span>Version taken from the Git release tag</span>
             </div>
           </div>
@@ -506,8 +701,8 @@
         </p>
 
         <div class="ctaRow" style="margin-top:14px">
-          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer">Star on GitHub</a>
-          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager/issues" target="_blank" rel="noreferrer">Report an issue</a>
+          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager" target="_blank" rel="noreferrer"><span class="spark"></span>Star on GitHub</a>
+          <a class="btn" href="https://github.com/Rachakonda-Ravi/Download-Manager/issues" target="_blank" rel="noreferrer"><span class="spark"></span>Report an issue</a>
         </div>
 
         <p class="small" style="margin-top:12px">
@@ -523,8 +718,198 @@
 
   </div>
 
+  <!-- Download Modal -->
+  <div class="modalOverlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHead">
+        <div>
+          <h3 id="modalTitle">Choose your download</h3>
+          <p id="modalSubtitle">We’ll try to fetch the latest release and download the selected file directly.</p>
+        </div>
+        <button class="closeBtn" id="closeModalBtn" type="button" aria-label="Close">
+          ✕
+        </button>
+      </div>
+
+      <div class="options">
+        <div class="opt">
+          <div class="optLeft">
+            <b>Windows EXE</b>
+            <span>Standard installer</span>
+          </div>
+          <button class="btn primary optBtn" type="button" data-kind="exe">
+            <span class="spark"></span>Download .exe
+          </button>
+        </div>
+
+        <div class="opt">
+          <div class="optLeft">
+            <b>Windows MSI</b>
+            <span>Enterprise-friendly installer</span>
+          </div>
+          <button class="btn primary optBtn" type="button" data-kind="msi">
+            <span class="spark"></span>Download .msi
+          </button>
+        </div>
+
+        <div class="opt">
+          <div class="optLeft">
+            <b>Portable ZIP</b>
+            <span>No installation required</span>
+          </div>
+          <button class="btn primary optBtn" type="button" data-kind="portable">
+            <span class="spark"></span>Download Portable
+          </button>
+        </div>
+      </div>
+
+      <div class="statusLine" id="statusLine"></div>
+
+      <div class="modalFoot">
+        <div class="linkMuted">
+          If direct download can’t be resolved, use
+          <a href="https://github.com/Rachakonda-Ravi/Download-Manager/releases" target="_blank" rel="noreferrer">Releases page</a>.
+        </div>
+        <a class="chip" href="https://github.com/Rachakonda-Ravi/Download-Manager/releases" target="_blank" rel="noreferrer">Open Releases</a>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ====== Config ======
+    const OWNER = "Rachakonda-Ravi";
+    const REPO  = "Download-Manager";
+    const RELEASES_PAGE = `https://github.com/${OWNER}/${REPO}/releases`;
+
+    // Fallback (your current v1.0 direct links)
+    const FALLBACK = {
+      exe: "https://github.com/Rachakonda-Ravi/Download-Manager/releases/download/v1.0/DownloadManager-1.0.exe",
+      msi: "https://github.com/Rachakonda-Ravi/Download-Manager/releases/download/v1.0/DownloadManager-1.0.msi",
+      portable: "https://github.com/Rachakonda-Ravi/Download-Manager/releases/download/v1.0/DownloadManager-1.0-Portable.zip"
+    };
+
+    // GitHub API: get latest release (public repos can be queried without auth)
+    // Docs: GET /repos/{owner}/{repo}/releases/latest returns latest published non-draft non-prerelease [page:0]
+    const API_LATEST = `https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`;
+
+    // ====== UI helpers ======
+    const modalOverlay = document.getElementById("modalOverlay");
+    const downloadLatestBtn = document.getElementById("downloadLatestBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const statusLine = document.getElementById("statusLine");
+    const releasePill = document.getElementById("releasePill");
+
+    function openModal(){
+      modalOverlay.classList.add("show");
+      modalOverlay.setAttribute("aria-hidden", "false");
+      statusLine.className = "statusLine";
+      statusLine.textContent = "";
+      statusLine.classList.remove("show");
+    }
+    function closeModal(){
+      modalOverlay.classList.remove("show");
+      modalOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function setStatus(msg, type){
+      statusLine.textContent = msg;
+      statusLine.className = `statusLine show ${type || ""}`.trim();
+    }
+
+    function startDirectDownload(url){
+      // Let browser handle direct download
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    // ====== Latest release resolution ======
+    async function getLatestRelease(){
+      const res = await fetch(API_LATEST, {
+        headers: { "Accept": "application/vnd.github+json" }
+      });
+      if (!res.ok) throw new Error(`GitHub API error ${res.status}`);
+      return await res.json();
+    }
+
+    function pickAssetUrl(releaseJson, kind){
+      // Assets contain browser_download_url [page:0]
+      const assets = Array.isArray(releaseJson.assets) ? releaseJson.assets : [];
+      const byExt = {
+        exe: (name) => name.toLowerCase().endsWith(".exe"),
+        msi: (name) => name.toLowerCase().endsWith(".msi"),
+        portable: (name) => name.toLowerCase().includes("portable") && name.toLowerCase().endsWith(".zip")
+      };
+
+      const match = assets.find(a => a && a.name && byExt[kind] && byExt[kind](a.name));
+      return match && match.browser_download_url ? match.browser_download_url : null;
+    }
+
+    async function resolveAndDownload(kind){
+      setStatus("Fetching latest release…", "warn");
+
+      try{
+        const latest = await getLatestRelease();
+        const tag = latest.tag_name || "latest";
+        releasePill.textContent = `Latest: ${tag}`;
+        releasePill.style.borderColor = "rgba(34,197,94,.25)";
+        releasePill.style.color = "rgba(234,240,255,.80)";
+
+        const url = pickAssetUrl(latest, kind);
+        if (url){
+          setStatus(`Starting download from latest release (${tag})…`, "ok");
+          startDirectDownload(url);
+          return;
+        }
+
+        // If asset not found, fall back
+        setStatus("Couldn’t find that asset in the latest release. Opening Releases page…", "err");
+        startDirectDownload(RELEASES_PAGE);
+      }catch(e){
+        // API might be blocked by rate limits/CORS/network; fall back to fixed v1.0 links or release page
+        if (FALLBACK[kind]){
+          setStatus("Couldn’t fetch latest release. Using fallback direct link (v1.0)…", "warn");
+          startDirectDownload(FALLBACK[kind]);
+        } else {
+          setStatus("Couldn’t fetch latest release. Opening Releases page…", "err");
+          startDirectDownload(RELEASES_PAGE);
+        }
+      }
+    }
+
+    // ====== Wire up events ======
+    downloadLatestBtn.addEventListener("click", openModal);
+    closeModalBtn.addEventListener("click", closeModal);
+
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalOverlay.classList.contains("show")) closeModal();
+    });
+
+    document.querySelectorAll(".optBtn").forEach(btn => {
+      btn.addEventListener("click", () => resolveAndDownload(btn.dataset.kind));
+    });
+
+    // Footer year
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Populate latest pill (non-blocking)
+    (async () => {
+      try{
+        const latest = await getLatestRelease();
+        const tag = latest.tag_name || "latest";
+        releasePill.textContent = `Latest: ${tag}`;
+      }catch{
+        releasePill.textContent = "Latest: check Releases";
+      }
+    })();
   </script>
 </body>
 </html>
