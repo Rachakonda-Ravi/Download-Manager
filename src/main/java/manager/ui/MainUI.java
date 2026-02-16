@@ -174,10 +174,15 @@ public class MainUI extends Application {
 
         TableColumn<DownloadTask, String> speedCol =
                 new TableColumn<>("Speed");
-
+        
         speedCol.setCellValueFactory(data ->
-                data.getValue().speedProperty().asObject()
+                javafx.beans.binding.Bindings.createStringBinding(
+                        () -> String.format("%.2f MB/s",
+                                data.getValue().speedProperty().get()),
+                        data.getValue().speedProperty()
+                )
         );
+
 
         TableColumn<DownloadTask, String> etaCol =
                 new TableColumn<>("ETA");
