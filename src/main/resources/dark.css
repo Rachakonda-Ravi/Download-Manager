@@ -1,6 +1,6 @@
 .root {
     -fx-font-family: "Consolas";
-    -fx-background-color: linear-gradient(to bottom right, #000000, #071a12);
+    -fx-background-color: linear-gradient(to bottom right, #000000, #0f2027);
 }
 
 /* Sidebar */
@@ -12,39 +12,38 @@
 
 /* Logo */
 .logo {
-    -fx-text-fill: #00ff9c;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-}
-
-/* Nav */
-.nav-button {
-    -fx-background-color: transparent;
     -fx-text-fill: #00ff9c;
-}
-
-.nav-button:hover {
-    -fx-background-color: rgba(0,255,156,0.15);
-}
-
-/* Title */
-.title {
-    -fx-text-fill: #00ff9c;
-    -fx-font-size: 24px;
 }
 
 /* Cards */
 .download-card {
-    -fx-background-color: #0c0c0c;
+    -fx-background-color: #0a0f0d;
     -fx-border-color: #00ff9c;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0,255,156,0.5), 20, 0.3, 0, 0);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,255,156,0.6), 25, 0.4, 0, 0);
 }
 
 .download-card:hover {
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+/* TEXT FIX */
+.file-name {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.status-label {
+    -fx-text-fill: #00ff9c;
+}
+
+.speed-label {
+    -fx-text-fill: #ffffff;
 }
 
 /* Progress */
@@ -52,13 +51,24 @@
     -fx-accent: #00ff9c;
 }
 
-/* Bottom */
-.url-input {
-    -fx-background-color: #111;
-    -fx-text-fill: #00ff9c;
-}
-
+/* Buttons */
 .primary-button {
     -fx-background-color: #00ff9c;
     -fx-text-fill: black;
+}
+
+.secondary-button {
+    -fx-background-color: #1f2937;
+    -fx-text-fill: white;
+}
+
+.danger-button {
+    -fx-background-color: #ff0055;
+    -fx-text-fill: white;
+}
+
+/* Input */
+.url-input {
+    -fx-background-color: #111;
+    -fx-text-fill: #00ff9c;
 }
