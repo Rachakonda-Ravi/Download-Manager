@@ -1,51 +1,60 @@
 .root {
-    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-family: "Segoe UI";
     -fx-background-color:
         linear-gradient(to bottom right, #051937, #004d40, #2b0a3d);
 }
 
+/* Sidebar */
+.sidebar {
+    -fx-background-color: rgba(0,255,200,0.05);
+    -fx-border-color: rgba(0,255,200,0.3);
+    -fx-border-width: 0 1 0 0;
+}
+
+/* Logo */
+.logo {
+    -fx-text-fill: #00f5a0;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Nav */
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #00f5a0;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(0,255,200,0.1);
+}
+
 /* Cards */
-.card {
+.download-card {
     -fx-background-color: rgba(255,255,255,0.05);
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-border-color: rgba(0,255,200,0.25);
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,255,200,0.15), 20, 0.3, 0, 0);
+    -fx-border-color: rgba(0,255,200,0.4);
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,255,200,0.3), 25, 0.3, 0, 0);
 }
 
-/* Labels */
-.label {
-    -fx-text-fill: #e0f7fa;
-}
-
-/* Buttons */
-.button {
-    -fx-background-color:
-        linear-gradient(to right, #00f5a0, #8e2de2);
-    -fx-text-fill: white;
-    -fx-background-radius: 12;
-    -fx-padding: 6 16;
-}
-
-.button:hover {
-    -fx-opacity: 0.9;
+.download-card:hover {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
 }
 
 /* Progress */
-.progress-bar {
-    -fx-background-radius: 8;
+.modern-progress {
+    -fx-accent: linear-gradient(to right, #00f5a0, #00d9f5, #8e2de2);
 }
 
-.progress-bar > .bar {
+/* Bottom */
+.url-input {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-text-fill: #e0f7fa;
+}
+
+.primary-button {
     -fx-background-color:
-        linear-gradient(to right, #00f5a0, #00d9f5, #8e2de2);
-    -fx-background-radius: 8;
-}
-
-/* Sidebar */
-.sidebar {
-    -fx-background-color: rgba(255,255,255,0.04);
-    -fx-border-color: rgba(0,255,200,0.2);
-    -fx-border-width: 0 1 0 0;
+        linear-gradient(to right, #00f5a0, #8e2de2);
+    -fx-text-fill: white;
 }
