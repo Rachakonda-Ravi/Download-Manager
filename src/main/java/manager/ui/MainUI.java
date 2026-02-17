@@ -15,94 +15,93 @@ public class MainUI extends Application {
     public void start(Stage stage) {
 
         BorderPane root = new BorderPane();
-        root.getStyleClass().add("root-bg");
+        root.getStyleClass().add("root");
 
-        // ===== LEFT SIDEBAR =====
+        // ===== SIDEBAR =====
         VBox sidebar = new VBox(25);
-        sidebar.setPadding(new Insets(30));
-        sidebar.setPrefWidth(260);
+        sidebar.setPadding(new Insets(25));
+        sidebar.setPrefWidth(250);
         sidebar.getStyleClass().add("sidebar");
 
         Label logo = new Label("Download Manager");
         logo.getStyleClass().add("logo");
 
-        VBox nav = new VBox(15,
+        ComboBox<String> themeSelector = new ComboBox<>();
+        themeSelector.getItems().addAll(
+                "Dark (Neon Hacker)",
+                "Light (Glass)",
+                "Aurora (Gaming)"
+        );
+        themeSelector.setValue("Dark (Neon Hacker)");
+
+        themeSelector.setOnAction(e -> switchTheme(themeSelector.getValue()));
+
+        VBox nav = new VBox(12,
                 createNavButton("Dashboard"),
-                createNavButton("Active Downloads"),
+                createNavButton("Active"),
                 createNavButton("Completed"),
-                createNavButton("Settings"),
-                createNavButton("About")
+                createNavButton("Settings")
         );
 
-        sidebar.getChildren().addAll(logo, nav);
+        sidebar.getChildren().addAll(logo, themeSelector, nav);
         root.setLeft(sidebar);
 
-        // ===== CENTER PANEL =====
-        VBox centerContainer = new VBox(25);
-        centerContainer.setPadding(new Insets(30));
+        // ===== CENTER =====
+        VBox center = new VBox(20);
+        center.setPadding(new Insets(25));
 
-        Label dashTitle = new Label("Dashboard");
-        dashTitle.getStyleClass().add("title");
+        Label title = new Label("Dashboard");
+        title.getStyleClass().add("title");
 
-        HBox mainContent = new HBox(25);
-
-        VBox downloadsPanel = new VBox(20);
-        downloadsPanel.getStyleClass().add("glass-panel");
-        downloadsPanel.setPadding(new Insets(25));
-        downloadsPanel.setPrefWidth(650);
-
-        Label activeTitle = new Label("Active & recent downloads");
-        activeTitle.getStyleClass().add("section-title");
-
-        downloadsPanel.getChildren().addAll(
-                activeTitle,
-                createDownloadCard("ubuntu.iso", "Downloading", 0.6),
-                createDownloadCard("video_tutorial.mp4", "Completed", 1.0),
-                createDownloadCard("archive_backup.zip", "Queued", 0.1)
+        VBox downloads = new VBox(15,
+                createDownloadCard("ubuntu.iso", 0.6),
+                createDownloadCard("video.mp4", 1.0),
+                createDownloadCard("backup.zip", 0.1)
         );
 
-        VBox overviewPanel = new VBox(20);
-        overviewPanel.getStyleClass().add("glass-panel");
-        overviewPanel.setPadding(new Insets(25));
-        overviewPanel.setPrefWidth(320);
-
-        overviewPanel.getChildren().addAll(
-                createOverviewItem("Active", "1 download"),
-                createOverviewItem("Queued", "2 items"),
-                createOverviewItem("Completed today", "5 files"),
-                createOverviewItem("Total speed", "18.4 MB/s"),
-                createOverviewItem("Disk", "74% free")
-        );
-
-        mainContent.getChildren().addAll(downloadsPanel, overviewPanel);
-
-        centerContainer.getChildren().addAll(dashTitle, mainContent);
-        root.setCenter(centerContainer);
+        center.getChildren().addAll(title, downloads);
+        root.setCenter(center);
 
         // ===== BOTTOM BAR =====
-        HBox bottomBar = new HBox(15);
-        bottomBar.setPadding(new Insets(20));
-        bottomBar.setAlignment(Pos.CENTER);
+        HBox bottom = new HBox(15);
+        bottom.setPadding(new Insets(15));
+        bottom.setAlignment(Pos.CENTER);
 
         TextField urlField = new TextField();
         urlField.setPromptText("Paste download URL here...");
-        urlField.setPrefWidth(800);
         urlField.getStyleClass().add("url-input");
+        HBox.setHgrow(urlField, Priority.ALWAYS);
 
         Button addBtn = new Button("Add");
         addBtn.getStyleClass().add("primary-button");
 
-        bottomBar.getChildren().addAll(urlField, addBtn);
-        root.setBottom(bottomBar);
+        bottom.getChildren().addAll(urlField, addBtn);
+        root.setBottom(bottom);
 
-        scene = new Scene(root, 1400, 820);
+        scene = new Scene(root, 1300, 800);
         scene.getStylesheets().add(
-                getClass().getResource("/dashboard.css").toExternalForm()
+                getClass().getResource("/dark.css").toExternalForm()
         );
 
         stage.setTitle("Download Manager");
         stage.setScene(scene);
         stage.show();
+    }
+
+    private void switchTheme(String theme) {
+
+        scene.getStylesheets().clear();
+
+        String css = "/dark.css";
+
+        if (theme.contains("Light"))
+            css = "/light.css";
+        else if (theme.contains("Aurora"))
+            css = "/aurora.css";
+
+        scene.getStylesheets().add(
+                getClass().getResource(css).toExternalForm()
+        );
     }
 
     private Button createNavButton(String text) {
@@ -112,34 +111,18 @@ public class MainUI extends Application {
         return btn;
     }
 
-    private VBox createDownloadCard(String file, String status, double progress) {
+    private VBox createDownloadCard(String file, double progress) {
 
-        Label fileName = new Label(file);
-        fileName.getStyleClass().add("file-name");
+        Label name = new Label(file);
+        name.getStyleClass().add("file-name");
 
         ProgressBar bar = new ProgressBar(progress);
-        bar.getStyleClass().add("modern-bar");
+        bar.getStyleClass().add("modern-progress");
 
-        Label statusLabel = new Label(status);
-        statusLabel.getStyleClass().add("badge");
-
-        VBox box = new VBox(10, fileName, bar, statusLabel);
+        VBox box = new VBox(10, name, bar);
+        box.setPadding(new Insets(18));
         box.getStyleClass().add("download-card");
-        box.setPadding(new Insets(20));
 
-        return box;
-    }
-
-    private VBox createOverviewItem(String title, String value) {
-        Label t = new Label(title);
-        t.getStyleClass().add("overview-title");
-
-        Label v = new Label(value);
-        v.getStyleClass().add("overview-value");
-
-        VBox box = new VBox(5, t, v);
-        box.getStyleClass().add("overview-item");
-        box.setPadding(new Insets(15));
         return box;
     }
 }
