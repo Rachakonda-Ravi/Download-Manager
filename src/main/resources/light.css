@@ -5,32 +5,22 @@
 
 /* Sidebar */
 .sidebar {
-    -fx-background-color: rgba(255,255,255,0.7);
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0.2, 0, 0);
+    -fx-background-color: rgba(255,255,255,0.8);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 40, 0.2, 0, 0);
 }
 
 /* Logo */
 .logo {
-    -fx-text-fill: #1f2937;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-}
-
-/* Nav */
-.nav-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #374151;
-}
-
-.nav-button:hover {
-    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-text-fill: #1f2937;
 }
 
 /* Cards */
 .download-card {
-    -fx-background-color: rgba(255,255,255,0.6);
-    -fx-background-radius: 14;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0.2, 0, 5);
+    -fx-background-color: rgba(255,255,255,0.75);
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 25, 0.2, 0, 6);
 }
 
 .download-card:hover {
@@ -38,17 +28,41 @@
     -fx-scale-y: 1.02;
 }
 
+/* Text */
+.file-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.status-label, .speed-label {
+    -fx-text-fill: #374151;
+}
+
 /* Progress */
 .modern-progress {
     -fx-accent: linear-gradient(to right, #4f46e5, #8b5cf6);
 }
 
-/* Bottom */
-.url-input {
-    -fx-background-color: white;
-}
-
+/* Buttons */
 .primary-button {
     -fx-background-color: linear-gradient(to right, #4f46e5, #7c3aed);
     -fx-text-fill: white;
+    -fx-background-radius: 30;
+}
+
+.secondary-button {
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 10;
+}
+
+.danger-button {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+}
+
+/* Input */
+.url-input {
+    -fx-background-radius: 30;
+    -fx-background-color: white;
 }
