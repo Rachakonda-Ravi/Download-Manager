@@ -1,50 +1,64 @@
 .root {
-    -fx-font-family: "Segoe UI", "Inter", sans-serif;
-    -fx-background-color:
-        linear-gradient(to bottom right, #0f172a, #111827);
-}
-
-/* Cards */
-.card {
-    -fx-background-color: #1e293b;
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
-    -fx-border-color: #334155;
-    -fx-border-width: 1;
-}
-
-/* Labels */
-.label {
-    -fx-text-fill: #e5e7eb;
-}
-
-/* Buttons */
-.button {
-    -fx-background-color:
-        linear-gradient(to right, #3b82f6, #6366f1);
-    -fx-text-fill: white;
-    -fx-background-radius: 10;
-    -fx-padding: 6 14;
-}
-
-.button:hover {
-    -fx-background-color:
-        linear-gradient(to right, #2563eb, #4f46e5);
-}
-
-/* Progress */
-.progress-bar {
-    -fx-background-color: #334155;
-    -fx-background-radius: 6;
-}
-
-.progress-bar > .bar {
-    -fx-background-color:
-        linear-gradient(to right, #60a5fa, #a78bfa);
-    -fx-background-radius: 6;
+    -fx-font-family: "Consolas";
+    -fx-background-color: linear-gradient(to bottom right, #000000, #071a12);
 }
 
 /* Sidebar */
 .sidebar {
-    -fx-background-color: #111827;
+    -fx-background-color: #050505;
+    -fx-border-color: #00ff9c;
+    -fx-border-width: 0 1 0 0;
+}
+
+/* Logo */
+.logo {
+    -fx-text-fill: #00ff9c;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Nav */
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #00ff9c;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(0,255,156,0.15);
+}
+
+/* Title */
+.title {
+    -fx-text-fill: #00ff9c;
+    -fx-font-size: 24px;
+}
+
+/* Cards */
+.download-card {
+    -fx-background-color: #0c0c0c;
+    -fx-border-color: #00ff9c;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,255,156,0.5), 20, 0.3, 0, 0);
+}
+
+.download-card:hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Progress */
+.modern-progress {
+    -fx-accent: #00ff9c;
+}
+
+/* Bottom */
+.url-input {
+    -fx-background-color: #111;
+    -fx-text-fill: #00ff9c;
+}
+
+.primary-button {
+    -fx-background-color: #00ff9c;
+    -fx-text-fill: black;
 }
