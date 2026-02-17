@@ -1,209 +1,145 @@
 package manager.ui;
 
 import javafx.application.Application;
-import javafx.collections.*;
 import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import manager.core.DownloadTask;
-import manager.queue.DownloadQueue;
 
 public class MainUI extends Application {
 
-    private final DownloadQueue queue = new DownloadQueue();
-    private final ObservableList<DownloadTask> downloads =
-            FXCollections.observableArrayList();
-
-    private TableView<DownloadTask> tableView;
     private Scene scene;
 
     @Override
     public void start(Stage stage) {
 
         BorderPane root = new BorderPane();
+        root.getStyleClass().add("root-bg");
 
         // ===== LEFT SIDEBAR =====
-        VBox sidebar = new VBox(20);
-        sidebar.setPadding(new Insets(20));
-        sidebar.setPrefWidth(220);
+        VBox sidebar = new VBox(25);
+        sidebar.setPadding(new Insets(30));
+        sidebar.setPrefWidth(260);
         sidebar.getStyleClass().add("sidebar");
 
-        Label logo = new Label("®️ Download Manager");
+        Label logo = new Label("Download Manager");
         logo.getStyleClass().add("logo");
 
-        Button dashboardBtn = new Button("Dashboard");
-        Button activeBtn = new Button("Active");
-        Button completedBtn = new Button("Completed");
-
-        ComboBox<String> themeBox = new ComboBox<>();
-        themeBox.getItems().addAll("Dark", "Light", "Purple-Gold");
-        themeBox.setValue("Dark");
-
-        themeBox.setOnAction(e -> {
-            switch (themeBox.getValue()) {
-                case "Dark":
-                    ThemeManager.applyTheme(scene, ThemeManager.Theme.DARK);
-                    break;
-                case "Light":
-                    ThemeManager.applyTheme(scene, ThemeManager.Theme.LIGHT);
-                    break;
-                case "Purple-Gold":
-                    ThemeManager.applyTheme(scene, ThemeManager.Theme.PURPLE_GOLD);
-                    break;
-            }
-        });
-
-        sidebar.getChildren().addAll(
-                logo,
-                new Separator(),
-                dashboardBtn,
-                activeBtn,
-                completedBtn,
-                new Separator(),
-                new Label("Theme"),
-                themeBox
+        VBox nav = new VBox(15,
+                createNavButton("Dashboard"),
+                createNavButton("Active Downloads"),
+                createNavButton("Completed"),
+                createNavButton("Settings"),
+                createNavButton("About")
         );
 
+        sidebar.getChildren().addAll(logo, nav);
         root.setLeft(sidebar);
 
-        // ===== CENTER DASHBOARD =====
-        VBox center = new VBox(15);
-        center.setPadding(new Insets(20));
+        // ===== CENTER PANEL =====
+        VBox centerContainer = new VBox(25);
+        centerContainer.setPadding(new Insets(30));
 
-        HBox statsBar = new HBox(20);
-        statsBar.getChildren().addAll(
-                createStatCard("Total", "0"),
-                createStatCard("Active", "0"),
-                createStatCard("Completed", "0")
+        Label dashTitle = new Label("Dashboard");
+        dashTitle.getStyleClass().add("title");
+
+        HBox mainContent = new HBox(25);
+
+        VBox downloadsPanel = new VBox(20);
+        downloadsPanel.getStyleClass().add("glass-panel");
+        downloadsPanel.setPadding(new Insets(25));
+        downloadsPanel.setPrefWidth(650);
+
+        Label activeTitle = new Label("Active & recent downloads");
+        activeTitle.getStyleClass().add("section-title");
+
+        downloadsPanel.getChildren().addAll(
+                activeTitle,
+                createDownloadCard("ubuntu.iso", "Downloading", 0.6),
+                createDownloadCard("video_tutorial.mp4", "Completed", 1.0),
+                createDownloadCard("archive_backup.zip", "Queued", 0.1)
         );
 
-        createTableView();
+        VBox overviewPanel = new VBox(20);
+        overviewPanel.getStyleClass().add("glass-panel");
+        overviewPanel.setPadding(new Insets(25));
+        overviewPanel.setPrefWidth(320);
 
-        center.getChildren().addAll(statsBar, tableView);
-        root.setCenter(center);
+        overviewPanel.getChildren().addAll(
+                createOverviewItem("Active", "1 download"),
+                createOverviewItem("Queued", "2 items"),
+                createOverviewItem("Completed today", "5 files"),
+                createOverviewItem("Total speed", "18.4 MB/s"),
+                createOverviewItem("Disk", "74% free")
+        );
+
+        mainContent.getChildren().addAll(downloadsPanel, overviewPanel);
+
+        centerContainer.getChildren().addAll(dashTitle, mainContent);
+        root.setCenter(centerContainer);
 
         // ===== BOTTOM BAR =====
+        HBox bottomBar = new HBox(15);
+        bottomBar.setPadding(new Insets(20));
+        bottomBar.setAlignment(Pos.CENTER);
+
         TextField urlField = new TextField();
-        urlField.setPromptText("Enter download URL");
+        urlField.setPromptText("Paste download URL here...");
+        urlField.setPrefWidth(800);
+        urlField.getStyleClass().add("url-input");
 
-        Button downloadBtn = new Button("Start Download");
+        Button addBtn = new Button("Add");
+        addBtn.getStyleClass().add("primary-button");
 
-        downloadBtn.setOnAction(e -> {
-            String url = urlField.getText();
-            if (!url.isEmpty()) {
+        bottomBar.getChildren().addAll(urlField, addBtn);
+        root.setBottom(bottomBar);
 
-                String fileName =
-                        url.substring(url.lastIndexOf("/") + 1);
+        scene = new Scene(root, 1400, 820);
+        scene.getStylesheets().add(
+                getClass().getResource("/dashboard.css").toExternalForm()
+        );
 
-                DownloadTask task =
-                        new DownloadTask(url, "downloads/" + fileName);
-
-                downloads.add(task);
-                queue.add(task);
-                task.start();
-
-                urlField.clear();
-            }
-        });
-
-        HBox bottom = new HBox(10, urlField, downloadBtn);
-        bottom.setPadding(new Insets(15));
-        bottom.setAlignment(Pos.CENTER_LEFT);
-
-        root.setBottom(bottom);
-
-        scene = new Scene(root, 1200, 750);
-
-        ThemeManager.applyTheme(scene, ThemeManager.Theme.DARK);
-
-        stage.setTitle("®️ Download Manager");
+        stage.setTitle("Download Manager");
         stage.setScene(scene);
         stage.show();
     }
 
-    private VBox createStatCard(String title, String value) {
-
-        Label titleLabel = new Label(title);
-        titleLabel.getStyleClass().add("stat-title");
-
-        Label valueLabel = new Label(value);
-        valueLabel.getStyleClass().add("stat-value");
-
-        VBox card = new VBox(5, titleLabel, valueLabel);
-        card.setPadding(new Insets(15));
-        card.getStyleClass().add("stat-card");
-
-        return card;
+    private Button createNavButton(String text) {
+        Button btn = new Button(text);
+        btn.getStyleClass().add("nav-button");
+        btn.setMaxWidth(Double.MAX_VALUE);
+        return btn;
     }
 
-    private void createTableView() {
+    private VBox createDownloadCard(String file, String status, double progress) {
 
-        tableView = new TableView<>(downloads);
+        Label fileName = new Label(file);
+        fileName.getStyleClass().add("file-name");
 
-        TableColumn<DownloadTask, String> nameCol =
-                new TableColumn<>("File");
+        ProgressBar bar = new ProgressBar(progress);
+        bar.getStyleClass().add("modern-bar");
 
-        nameCol.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(
-                        data.getValue().getFileName()
-                ));
+        Label statusLabel = new Label(status);
+        statusLabel.getStyleClass().add("badge");
 
-        TableColumn<DownloadTask, Double> progressCol =
-                new TableColumn<>("Progress");
+        VBox box = new VBox(10, fileName, bar, statusLabel);
+        box.getStyleClass().add("download-card");
+        box.setPadding(new Insets(20));
 
-        progressCol.setCellValueFactory(data ->
-                data.getValue().progressProperty().asObject()
-        );
+        return box;
+    }
 
-        progressCol.setCellFactory(col -> new TableCell<>() {
-            private final ProgressBar bar = new ProgressBar();
+    private VBox createOverviewItem(String title, String value) {
+        Label t = new Label(title);
+        t.getStyleClass().add("overview-title");
 
-            @Override
-            protected void updateItem(Double value, boolean empty) {
-                super.updateItem(value, empty);
-                if (empty || value == null) {
-                    setGraphic(null);
-                } else {
-                    bar.setProgress(value);
-                    setGraphic(bar);
-                }
-            }
-        });
+        Label v = new Label(value);
+        v.getStyleClass().add("overview-value");
 
-        TableColumn<DownloadTask, String> speedCol =
-                new TableColumn<>("Speed");
-        
-        speedCol.setCellValueFactory(data ->
-                javafx.beans.binding.Bindings.createStringBinding(
-                        () -> String.format("%.2f MB/s",
-                                data.getValue().speedProperty().get()),
-                        data.getValue().speedProperty()
-                )
-        );
-
-
-        TableColumn<DownloadTask, String> etaCol =
-                new TableColumn<>("ETA");
-
-        etaCol.setCellValueFactory(data ->
-                data.getValue().etaProperty()
-        );
-
-        TableColumn<DownloadTask, String> statusCol =
-                new TableColumn<>("Status");
-
-        statusCol.setCellValueFactory(data ->
-                data.getValue().statusProperty()
-        );
-
-        tableView.getColumns().addAll(
-                nameCol,
-                progressCol,
-                speedCol,
-                etaCol,
-                statusCol
-        );
+        VBox box = new VBox(5, t, v);
+        box.getStyleClass().add("overview-item");
+        box.setPadding(new Insets(15));
+        return box;
     }
 }
