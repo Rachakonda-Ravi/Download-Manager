@@ -1,45 +1,87 @@
-.root {
+.root-bg {
+    -fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);
     -fx-font-family: "Segoe UI";
-    -fx-background-color: #1e1e1e;
     -fx-text-fill: white;
 }
 
 .sidebar {
-    -fx-background-color: #252526;
+    -fx-background-color: rgba(15, 23, 42, 0.8);
 }
 
 .logo {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-}
-
-.button {
-    -fx-background-color: #333;
-    -fx-text-fill: white;
-}
-
-.button:hover {
-    -fx-background-color: #444;
-}
-
-.stat-card {
-    -fx-background-color: #2d2d2d;
-    -fx-background-radius: 10;
-}
-
-.stat-title {
-    -fx-text-fill: #aaa;
-}
-
-.stat-value {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
 
-.table-view {
-    -fx-background-color: #2d2d2d;
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 14px;
 }
 
-.progress-bar > .bar {
-    -fx-background-color: linear-gradient(to right, purple, gold);
+.nav-button:hover {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-background-radius: 10;
+}
+
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.glass-panel {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 18;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-text-fill: #94a3b8;
+}
+
+.download-card {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 15;
+}
+
+.file-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.modern-bar {
+    -fx-accent: linear-gradient(to right, #38bdf8, #a78bfa);
+}
+
+.badge {
+    -fx-background-color: rgba(99,102,241,0.2);
+    -fx-padding: 5 12;
+    -fx-background-radius: 20;
+}
+
+.overview-item {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 12;
+}
+
+.overview-title {
+    -fx-text-fill: #94a3b8;
+}
+
+.overview-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.url-input {
+    -fx-background-radius: 30;
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: white;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, #38bdf8, #a78bfa);
+    -fx-background-radius: 30;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
 }
