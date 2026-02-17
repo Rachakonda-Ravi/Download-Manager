@@ -1,7 +1,6 @@
 package manager.ui;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.*;
 import javafx.scene.Scene;
@@ -11,7 +10,6 @@ import javafx.stage.Stage;
 import manager.core.DownloadTask;
 
 import java.io.File;
-import java.util.*;
 
 public class MainUI extends Application {
 
@@ -25,45 +23,42 @@ public class MainUI extends Application {
         root.getStyleClass().add("root");
 
         // ===== SIDEBAR =====
-        VBox sidebar = new VBox(20);
-        sidebar.setPadding(new Insets(20));
-        sidebar.setPrefWidth(240);
+        VBox sidebar = new VBox(25);
+        sidebar.setPadding(new Insets(30));
+        sidebar.setPrefWidth(260);
         sidebar.getStyleClass().add("sidebar");
 
         Label logo = new Label("Download Manager");
         logo.getStyleClass().add("logo");
 
         ComboBox<String> themeSelector = new ComboBox<>();
-        themeSelector.getItems().addAll(
-                "Dark",
-                "Light",
-                "Aurora"
-        );
-        themeSelector.setValue("Dark");
+        themeSelector.getItems().addAll("Light", "Dark", "Aurora");
+        themeSelector.setValue("Light"); // DEFAULT MODE
         themeSelector.setOnAction(e -> switchTheme(themeSelector.getValue()));
 
         sidebar.getChildren().addAll(logo, themeSelector);
         root.setLeft(sidebar);
 
         // ===== CENTER =====
-        downloadsBox = new VBox(15);
-        downloadsBox.setPadding(new Insets(20));
+        downloadsBox = new VBox(18);
+        downloadsBox.setPadding(new Insets(30));
 
         ScrollPane scroll = new ScrollPane(downloadsBox);
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background: transparent;");
         root.setCenter(scroll);
 
-        // ===== BOTTOM =====
-        HBox bottom = new HBox(10);
-        bottom.setPadding(new Insets(15));
+        // ===== BOTTOM BAR =====
+        HBox bottom = new HBox(15);
+        bottom.setPadding(new Insets(20));
+        bottom.setAlignment(Pos.CENTER);
 
         TextField urlField = new TextField();
-        urlField.setPromptText("Paste URL...");
+        urlField.setPromptText("Paste download URL here...");
         urlField.getStyleClass().add("url-input");
         HBox.setHgrow(urlField, Priority.ALWAYS);
 
-        Button addBtn = new Button("Download");
+        Button addBtn = new Button("Add");
         addBtn.getStyleClass().add("primary-button");
 
         addBtn.setOnAction(e -> {
@@ -81,9 +76,9 @@ public class MainUI extends Application {
         bottom.getChildren().addAll(urlField, addBtn);
         root.setBottom(bottom);
 
-        scene = new Scene(root, 1300, 800);
+        scene = new Scene(root, 1350, 820);
         scene.getStylesheets().add(
-                getClass().getResource("/dark.css").toExternalForm()
+                getClass().getResource("/light.css").toExternalForm()
         );
 
         stage.setTitle("Download Manager");
@@ -95,9 +90,9 @@ public class MainUI extends Application {
 
         scene.getStylesheets().clear();
 
-        String css = "/dark.css";
+        String css = "/light.css";
 
-        if (theme.equals("Light")) css = "/light.css";
+        if (theme.equals("Dark")) css = "/dark.css";
         if (theme.equals("Aurora")) css = "/aurora.css";
 
         scene.getStylesheets().add(
@@ -107,8 +102,8 @@ public class MainUI extends Application {
 
     private void addDownloadCard(DownloadTask task, String fileName) {
 
-        VBox card = new VBox(10);
-        card.setPadding(new Insets(15));
+        VBox card = new VBox(12);
+        card.setPadding(new Insets(20));
         card.getStyleClass().add("download-card");
 
         Label name = new Label(fileName);
@@ -116,24 +111,30 @@ public class MainUI extends Application {
 
         ProgressBar bar = new ProgressBar();
         bar.progressProperty().bind(task.progressProperty());
+        bar.getStyleClass().add("modern-progress");
 
         Label status = new Label();
         status.textProperty().bind(task.statusProperty());
+        status.getStyleClass().add("status-label");
 
         Label speed = new Label();
         speed.textProperty().bind(
                 Bindings.format("Speed: %.2f MB/s", task.speedProperty())
         );
+        speed.getStyleClass().add("speed-label");
 
         HBox controls = new HBox(10);
 
         Button pause = new Button("Pause");
-        pause.setOnAction(e -> task.pause());
-
         Button resume = new Button("Resume");
-        resume.setOnAction(e -> task.resume());
-
         Button cancel = new Button("Cancel");
+
+        pause.getStyleClass().add("secondary-button");
+        resume.getStyleClass().add("secondary-button");
+        cancel.getStyleClass().add("danger-button");
+
+        pause.setOnAction(e -> task.pause());
+        resume.setOnAction(e -> task.resume());
         cancel.setOnAction(e -> {
             task.cancel();
             downloadsBox.getChildren().remove(card);
