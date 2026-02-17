@@ -1,49 +1,54 @@
 .root {
-    -fx-font-family: "Segoe UI", "Inter", sans-serif;
-    -fx-background-color: #f4f6f9;
-}
-
-/* Cards */
-.card {
-    -fx-background-color: white;
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
-    -fx-border-color: #e5e7eb;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0.2, 0, 3);
-}
-
-/* Labels */
-.label {
-    -fx-text-fill: #1f2937;
-}
-
-/* Buttons */
-.button {
-    -fx-background-color:
-        linear-gradient(to right, #4f46e5, #7c3aed);
-    -fx-text-fill: white;
-    -fx-background-radius: 10;
-    -fx-padding: 6 14;
-}
-
-.button:hover {
-    -fx-opacity: 0.9;
-}
-
-/* Progress */
-.progress-bar {
-    -fx-background-color: #e5e7eb;
-    -fx-background-radius: 6;
-}
-
-.progress-bar > .bar {
-    -fx-background-color:
-        linear-gradient(to right, #4f46e5, #8b5cf6);
-    -fx-background-radius: 6;
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: linear-gradient(to bottom right, #f9fafc, #eef2f7);
 }
 
 /* Sidebar */
 .sidebar {
-    -fx-background-color: #ffffff;
+    -fx-background-color: rgba(255,255,255,0.7);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0.2, 0, 0);
+}
+
+/* Logo */
+.logo {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Nav */
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(0,0,0,0.05);
+}
+
+/* Cards */
+.download-card {
+    -fx-background-color: rgba(255,255,255,0.6);
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0.2, 0, 5);
+}
+
+.download-card:hover {
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Progress */
+.modern-progress {
+    -fx-accent: linear-gradient(to right, #4f46e5, #8b5cf6);
+}
+
+/* Bottom */
+.url-input {
+    -fx-background-color: white;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, #4f46e5, #7c3aed);
+    -fx-text-fill: white;
 }
