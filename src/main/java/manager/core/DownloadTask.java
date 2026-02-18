@@ -38,13 +38,40 @@ public class DownloadTask {
 
         new Thread(() -> {
             try {
-                File file = new File(outputPath);
-                long downloaded = ResumeStore.getProgress(url);
+                    File file = new File(outputPath);
+                    
+                    // 🔥 CREATE DOWNLOAD FOLDER IF MISSING
+                    File parent = file.getParentFile();
+                    if (parent != null && !parent.exists()) {
+                        parent.mkdirs();
+                    }
+                    
+                    long downloaded = ResumeStore.getProgress(url);
 
-                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-                conn.setRequestProperty("Range", "bytes=" + downloaded + "-");
 
-                long totalSize = conn.getContentLengthLong() + downloaded;
+                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                    
+                    if (downloaded > 0) {
+                        conn.setRequestProperty("Range", "bytes=" + downloaded + "-");
+                    }
+                    
+                    conn.connect();
+                    
+                    long contentLength = conn.getContentLengthLong();
+                    long totalSize;
+                    
+                    if (downloaded > 0 && conn.getResponseCode() == 206) {
+                        totalSize = contentLength + downloaded;
+                    } else {
+                        // Server ignored range or fresh download
+                        downloaded = 0;
+                        totalSize = contentLength;
+                    }
+                    if (totalSize <= 0) {
+                        progress.set(-1); // indeterminate progress
+                    }
+
+
 
                 try (InputStream in = conn.getInputStream();
                      RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
@@ -71,12 +98,18 @@ public class DownloadTask {
                         raf.write(buffer, 0, len);
                         downloaded += len;
 
-                        progress.set((double) downloaded / totalSize);
+                        if (totalSize > 0) {
+                            progress.set((double) downloaded / totalSize);
+                        }
 
                         long now = System.currentTimeMillis();
                         if (now - lastTime >= 1000) {
-                            double mbps = ((downloaded - lastBytes) / 1024.0 / 1024.0);
+                        double seconds = (now - lastTime) / 1000.0;
+                        if (seconds > 0) {
+                            double mbps = ((downloaded - lastBytes) / 1024.0 / 1024.0) / seconds;
                             speed.set(mbps);
+                        }
+
                             lastBytes = downloaded;
                             lastTime = now;
                         }
